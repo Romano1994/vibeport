@@ -1,0 +1,73 @@
+services:
+  db:
+    image: mariadb:10.11
+    container_name: ${DB_CONTAINER_NAME:-CONTAINER_NAME}
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD is required}
+      MARIADB_DATABASE: ${DB_DATABASE:-DATABASE}
+      MARIADB_USER: ${DB_USERNAME:-USERNAME}
+      MARIADB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - vibeport-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./vibeport_back
+      dockerfile: Dockerfile
+    container_name: ${BACKEND_CONTAINER_NAME:-BACKEND_CONTAINER_NAME}
+    environment:
+      TZ: ${TZ:-Asia/Seoul}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      PERPLEXITY_API_KEY: ${PERPLEXITY_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      SPRING_AI_GEMINI_CHAT_OPTIONS_TIMEOUT: ${SPRING_AI_GEMINI_CHAT_OPTIONS_TIMEOUT:-180s}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY:-}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY:-}
+      SERPAPI_API_KEY: ${SERPAPI_API_KEY:-}
+    ports:
+      - "${BACKEND_PORT:-8081}:8081"
+    volumes:
+      - concert_images:/app/data/concert_images
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - vibeport-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./vibeport_front
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_BASE_URL: ${REACT_APP_API_BASE_URL:-/vibeport}
+    container_name: ${FRONTEND_CONTAINER_NAME:-FRONTEND_CONTAINER_NAME}
+    environment:
+      TZ: ${TZ:-Asia/Seoul}
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    depends_on:
+      - backend
+    networks:
+      - vibeport-network
+    restart: unless-stopped
+
+networks:
+  vibeport-network:
+    driver: bridge
+
+volumes:
+  db_data:
+  concert_images:

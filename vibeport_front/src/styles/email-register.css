@@ -1,0 +1,311 @@
+/* ===== Email Register Page — 매거진 라이트 ===== */
+
+.vp-er-page {
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.vp-er-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 816px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ===== 좌측 — 이메일 등록 ===== */
+.vp-er-left {
+  padding: 64px 56px 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.vp-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.vp-er-h1 {
+  font-family: var(--serif);
+  font-size: clamp(40px, 4.6vw, 68px);
+  font-weight: 700;
+  line-height: 1.05;
+  margin: 20px 0 0;
+  letter-spacing: -0.03em;
+}
+
+.vp-er-h1-accent {
+  font-style: italic;
+  color: var(--brick);
+}
+
+.vp-er-h2 {
+  font-family: var(--serif);
+  font-size: clamp(20px, 2vw, 28px);
+  font-weight: 400;
+  font-style: italic;
+  color: var(--ink-dim);
+  margin: 14px 0 0;
+  letter-spacing: -0.01em;
+}
+
+.vp-er-form-wrap {
+  margin-top: 32px;
+}
+
+.vp-er-desc {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink-dim);
+  max-width: 560px;
+  margin-bottom: 20px;
+}
+
+.vp-er-form {
+  max-width: 560px;
+}
+
+.vp-er-email-row {
+  display: flex;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
+
+.vp-er-email-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 20px 4px;
+  color: var(--ink);
+  font-size: 18px;
+  font-family: var(--serif);
+}
+
+.vp-er-submit-btn {
+  border: none;
+  padding: 0 28px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+
+.vp-er-submit-btn.active {
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+}
+
+.vp-er-submit-btn.inactive {
+  background: var(--ink-mute);
+  color: var(--paper);
+  cursor: not-allowed;
+}
+
+/* 인증코드 영역 */
+.vp-er-verify-box {
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--ecru);
+  border: 1px solid var(--ink);
+}
+
+.vp-er-verify-desc {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink-dim);
+  margin: 8px 0 14px;
+}
+
+.vp-er-verify-row {
+  display: flex;
+  gap: 8px;
+}
+
+.vp-er-code-input {
+  flex: 1;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  padding: 12px 14px;
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.4em;
+  text-align: center;
+  color: var(--ink);
+  outline: none;
+}
+
+.vp-er-verify-btn {
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  padding: 0 22px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+
+.vp-er-verify-btn:not(:disabled) {
+  cursor: pointer;
+}
+
+.vp-er-verify-btn:disabled {
+  cursor: not-allowed;
+}
+
+.vp-er-error {
+  color: var(--brick);
+  font-size: 13px;
+  margin-top: 10px;
+  font-family: var(--serif);
+}
+
+/* 완료 박스 */
+.vp-er-done-box {
+  max-width: 560px;
+  padding: 28px;
+  background: var(--ecru);
+  border: 1px solid var(--ink);
+}
+
+.vp-er-done-h3 {
+  font-family: var(--serif);
+  font-size: 28px;
+  margin: 10px 0 8px;
+  font-weight: 700;
+}
+
+.vp-er-done-body {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink-dim);
+  line-height: 1.7;
+}
+
+.vp-er-done-link {
+  border-bottom: 1px solid var(--ink);
+  cursor: pointer;
+}
+
+/* ===== 우측 — 메일 미리보기 ===== */
+.vp-er-right {
+  padding: 40px 56px 30px 0;
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+}
+
+/* Archive 메일 목업을 우측에 꽉 차게 */
+.vp-er-right .vp-archive-mockup {
+  position: relative;
+  top: auto;
+  width: 760px;
+  height: 100%;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.vp-er-right .vp-archive-mail-chrome,
+.vp-er-right .vp-ce-masthead,
+.vp-er-right .vp-ce-artist-header,
+.vp-er-right .vp-ce-hero,
+.vp-er-right .vp-ce-hero-photo,
+.vp-er-right .vp-ce-footer {
+  flex-shrink: 0;
+}
+
+.vp-er-right .vp-ce-artist-header {
+  padding-bottom: 10px;
+}
+
+.vp-er-right .vp-ce-h1 {
+  font-size: clamp(34px, 3vw, 44px);
+  margin-bottom: 6px;
+}
+
+.vp-er-right .vp-ce-hero {
+  height: 180px !important;
+}
+
+.vp-er-right .vp-ce-body {
+  padding-top: 16px;
+  overflow: visible;
+}
+
+/* 본문 - archive와 동일하게 전체 노출 */
+.vp-er-essay-clamp {
+  display: block;
+  overflow: visible;
+  text-overflow: clip;
+  max-height: none;
+  margin-top: 0;
+  padding-right: 0;
+}
+
+/* 푸터 — 날짜/장소 + READ MORE 형태로 override */
+.vp-er-archive-footer {
+  display: flex;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.vp-er-feature-meta {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--ink);
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+  letter-spacing: 0.1em;
+}
+
+.vp-er-feature-more {
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.vp-er-feature-loading {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--ink-mute);
+  font-style: italic;
+}
+
+@media (max-width: 960px) {
+  .vp-er-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vp-er-left {
+    border-right: none;
+    border-bottom: 1px solid var(--ink);
+  }
+
+  .vp-er-right {
+    padding: 0;
+    min-height: 0;
+  }
+
+  .vp-er-right .vp-archive-mockup {
+    width: 100%;
+  }
+
+  .vp-er-right .vp-ce-body {
+    overflow: visible;
+  }
+
+  .vp-er-essay-clamp {
+    overflow: visible;
+  }
+}

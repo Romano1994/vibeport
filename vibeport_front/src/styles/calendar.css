@@ -1,0 +1,371 @@
+/* ===== Calendar — 매거진 라이트 ===== */
+
+.vp-calendar-page {
+  background: var(--paper);
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.3s ease;
+}
+
+.vp-calendar-page.animating {
+  opacity: 0.4;
+}
+
+/* ===== 타이틀바 ===== */
+.vp-cal-titlebar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 6px 40px 10px;
+  border-bottom: 1px solid var(--ink);
+  flex-shrink: 0;
+}
+
+.vp-cal-titlebar-left {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.vp-cal-anno {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.16em;
+}
+
+.vp-cal-month-name {
+  font-family: var(--serif);
+  font-size: clamp(40px, 4vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  color: var(--ink);
+}
+
+.vp-cal-titlebar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vp-cal-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+  letter-spacing: 0.14em;
+  margin-right: 12px;
+}
+
+/* ===== 네비게이션 버튼 ===== */
+.vp-cal-nav-btn {
+  background: transparent;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: var(--serif);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vp-cal-nav-btn-today {
+  background: transparent;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  height: 36px;
+  padding: 0 14px;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vp-cal-nav-btn:hover,
+.vp-cal-nav-btn-today:hover {
+  background: var(--ecru);
+}
+
+/* ===== 바디 (그리드 + 사이드바) ===== */
+.vp-cal-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  flex: 1 0 auto;
+  min-height: 0;
+  padding-bottom: 30px;
+  overflow: visible;
+}
+
+.vp-cal-body.sidebar-visible {
+  grid-template-columns: 1fr 280px;
+}
+
+/* ===== 그리드 영역 ===== */
+.vp-cal-grid-area {
+  padding: 0 0 0 40px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+}
+
+/* ===== 요일 헤더 ===== */
+.vp-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1.5px solid var(--ink);
+  flex-shrink: 0;
+}
+
+.vp-cal-weekday {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink);
+  padding: 10px 8px;
+  letter-spacing: 0.18em;
+  font-weight: 500;
+}
+
+.vp-cal-weekday.sun {
+  color: var(--brick);
+}
+
+/* ===== 날짜 그리드 ===== */
+.vp-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minmax(116px, 1fr);
+  flex: 1;
+  min-height: 0;
+  overflow: visible;
+}
+
+/* ===== 날짜 셀 ===== */
+.vp-cal-cell {
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 6px 8px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.vp-cal-cell:nth-child(7n) {
+  border-right: none;
+}
+
+.vp-cal-cell.empty {
+  background: transparent;
+}
+
+.vp-cal-cell.today {
+  background: var(--ecru);
+  border-left: 3px solid var(--ink);
+}
+
+.vp-cal-cell.has-concerts {
+  cursor: pointer;
+}
+
+.vp-cal-cell.hovered {
+  background: rgba(26, 26, 26, 0.03);
+}
+
+/* ===== 셀 헤더 (날짜 + TODAY 뱃지) ===== */
+.vp-cal-cell-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.vp-cal-date-num {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.vp-cal-date-num.today {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.vp-cal-date-num.weekend {
+  color: var(--brick);
+}
+
+.vp-cal-today-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink);
+  letter-spacing: 0.14em;
+  font-weight: 600;
+}
+
+/* ===== 공연 칩 ===== */
+.vp-cal-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.vp-cal-chip {
+  padding: 4px 6px;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.vp-chip-artist {
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.vp-cal-more {
+  font-family: var(--mono);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-dim);
+  letter-spacing: 0.06em;
+  padding-left: 6px;
+  margin-top: 1px;
+  cursor: pointer;
+}
+
+.vp-cal-more:hover {
+  color: var(--ink);
+}
+
+/* ===== 사이드바 ===== */
+.vp-cal-sidebar {
+  border-left: 1px solid var(--ink);
+  padding: 20px 24px 20px;
+  background: var(--paper);
+  height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.vp-cal-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.vp-cal-sidebar-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brick);
+}
+
+.vp-cal-sidebar-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--ink-mute);
+  line-height: 1;
+  padding: 2px 4px;
+}
+
+.vp-cal-sidebar-close:hover {
+  color: var(--ink);
+}
+
+.vp-cal-sidebar-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.vp-cal-sidebar-empty {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink-mute);
+  padding: 20px 0;
+}
+
+.vp-cal-sidebar-item {
+  display: grid;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.vp-cal-sidebar-item:first-child {
+  border-top: 1px solid var(--line);
+}
+
+.vp-cal-sidebar-item:hover {
+  background: rgba(26, 26, 26, 0.02);
+}
+
+.vp-sidebar-date {
+  text-align: left;
+}
+
+.vp-sidebar-day {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.vp-sidebar-dow {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-mute);
+  letter-spacing: 0.14em;
+  margin-top: 4px;
+}
+
+.vp-sidebar-artist {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.vp-sidebar-meta {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--ink-dim);
+  margin-top: 4px;
+}
+
+/* ===== 사이드바 스크롤바 ===== */
+.vp-cal-sidebar::-webkit-scrollbar { width: 3px; }
+.vp-cal-sidebar::-webkit-scrollbar-track { background: transparent; }
+.vp-cal-sidebar::-webkit-scrollbar-thumb { background: var(--line-strong); }
+
+/* ===== 포커스 ===== */
+.vp-cal-chip:focus-visible,
+.vp-cal-more:focus-visible,
+.vp-cal-sidebar-item:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}

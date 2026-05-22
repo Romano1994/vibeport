@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vibeport.concert.mapper.ConcertMapper">
+
+    <select id="selectConcertInfosByMonth" parameterType="Map" resultType="com.vibeport.ai.vo.ConcertInfoVo">
+        /* ConcertMapper.selectConcertInfosByMonth 월별 콘서트 정보 조회 */
+        SELECT A.CONCERT_NO
+             , A.ARTIST_NM_KOR
+             , A.ARTIST_NM_FOR
+             , A.CONCERT_YEAR
+             , A.CONCERT_MONTH
+             , A.CONCERT_DATE
+             , A.CONCERT_TIME
+             , A.VENUE
+             , A.TCT_SITE
+             , A.TCT_OPEN_AT
+             , A.POP_SCORE
+             , A.ARTIST_NM_FOR
+             , B.ARTIST_IMAGE_URL AS artistImageUrl
+             , A.SEND_YN
+          FROM TB_CONCERT_INFO AS A
+          LEFT OUTER JOIN (
+                SELECT M1.ARTIST_NM_KOR
+                     , M1.CONCERT_YEAR
+                     , M1.CONCERT_MONTH
+                     , M1.CONCERT_DATE
+                     , M1.ARTIST_IMAGE_URL
+                     , MAX(M1.REG_TIME) AS REG_TIME
+                  FROM TB_ARTIST_MSG AS M1
+                 GROUP BY M1.ARTIST_NM_KOR
+                     , M1.CONCERT_YEAR
+                     , M1.CONCERT_MONTH
+                     , M1.CONCERT_DATE
+                     , M1.ARTIST_IMAGE_URL
+          ) AS B
+            ON A.ARTIST_NM_KOR = B.ARTIST_NM_KOR
+           AND A.CONCERT_YEAR = B.CONCERT_YEAR
+           AND A.CONCERT_MONTH = B.CONCERT_MONTH
+           AND A.CONCERT_DATE = B.CONCERT_DATE
+         WHERE A.CONCERT_YEAR = #{year}
+           AND A.CONCERT_MONTH = #{month}
+           AND (A.CONCERT_DATE IS NULL OR A.CONCERT_DATE <![CDATA[ <> ]]> '0')
+         GROUP BY A.CONCERT_YEAR
+             , A.CONCERT_MONTH
+             , A.CONCERT_DATE
+             , A.VENUE
+         ORDER BY A.CONCERT_DATE, A.POP_SCORE DESC
+    </select>
+
+
+    <select id="selectTodayFeatureConcert" resultType="com.vibeport.ai.vo.ConcertInfoVo">
+        /* ConcertMapper.selectTodayFeatureConcert 오늘의 추천 공연 조회 */
+        SELECT A.CONCERT_NO
+             , A.ARTIST_NM_KOR
+             , A.ARTIST_NM_FOR
+             , A.CONCERT_YEAR
+             , A.CONCERT_MONTH
+             , A.CONCERT_DATE
+             , A.CONCERT_TIME
+             , A.VENUE
+             , A.TCT_SITE
+             , A.TCT_OPEN_AT
+             , B.SUBJECT
+             , B.CONTENT
+             , B.ARTIST_IMAGE_URL AS artistImageUrl
+             , A.POP_SCORE
+             , A.SEND_YN
+          FROM TB_CONCERT_INFO AS A
+          LEFT OUTER JOIN (
+                SELECT M1.ARTIST_NM_KOR
+                     , M1.CONCERT_YEAR
+                     , M1.CONCERT_MONTH
+                     , M1.CONCERT_DATE
+                     , M1.SUBJECT
+                     , M1.CONTENT
+                     , M1.ARTIST_IMAGE_URL
+                     , MAX(M1.REG_TIME) AS REG_TIME
+                  FROM TB_ARTIST_MSG AS M1
+                 GROUP BY M1.ARTIST_NM_KOR
+                     , M1.CONCERT_YEAR
+                     , M1.CONCERT_MONTH
+                     , M1.CONCERT_DATE
+                     , M1.SUBJECT
+                     , M1.CONTENT
+                     , M1.ARTIST_IMAGE_URL
+          ) AS B
+            ON A.ARTIST_NM_KOR = B.ARTIST_NM_KOR
+           AND A.CONCERT_YEAR = B.CONCERT_YEAR
+           AND A.CONCERT_MONTH = B.CONCERT_MONTH
+           AND A.CONCERT_DATE = B.CONCERT_DATE
+         WHERE STR_TO_DATE(CONCAT(A.CONCERT_YEAR, '-', LPAD(A.CONCERT_MONTH, 2, '0'), '-', LPAD(A.CONCERT_DATE, 2, '0')), '%Y-%m-%d') >= CURDATE()
+           AND (A.CONCERT_DATE IS NULL OR A.CONCERT_DATE <![CDATA[ <> ]]> '0')
+         ORDER BY B.REG_TIME DESC
+         LIMIT 1
+    </select>
+
+</mapper>

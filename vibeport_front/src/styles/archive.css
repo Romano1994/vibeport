@@ -1,0 +1,636 @@
+/* ===== Archive / Newsletter Preview ===== */
+
+.vp-archive-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 760px;
+  gap: 48px;
+  height: 100%;
+  min-height: 0;
+  padding: 40px 56px 30px;
+  background: var(--paper);
+  align-items: start;
+  overflow: hidden;
+}
+
+.vp-archive-desc {
+  min-width: 0;
+}
+
+.vp-archive-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brick);
+  margin-bottom: 16px;
+}
+
+.vp-archive-h2 {
+  font-family: var(--serif);
+  font-size: clamp(36px, 4vw, 56px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0 0 16px;
+}
+
+.vp-archive-body {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--ink-dim);
+  max-width: 540px;
+}
+
+/* ===== 이메일 목업 ===== */
+.vp-archive-mockup {
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  position: sticky;
+  top: 20px;
+  width: 760px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.vp-archive-mockup::-webkit-scrollbar { width: 3px; }
+.vp-archive-mockup::-webkit-scrollbar-track { background: transparent; }
+.vp-archive-mockup::-webkit-scrollbar-thumb { background: var(--line-strong); }
+
+.vp-archive-preview {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.vp-archive-preview .vp-archive-mail-chrome,
+.vp-archive-preview .vp-ce-masthead,
+.vp-archive-preview .vp-ce-artist-header,
+.vp-archive-preview .vp-ce-hero,
+.vp-archive-preview .vp-ce-footer {
+  flex-shrink: 0;
+}
+
+.vp-archive-preview .vp-ce-artist-header {
+  padding-bottom: 10px;
+}
+
+.vp-archive-preview .vp-ce-h1 {
+  font-size: clamp(34px, 3vw, 44px);
+  margin-bottom: 6px;
+}
+
+.vp-archive-preview .vp-ce-hero {
+  height: 180px !important;
+}
+
+.vp-archive-preview .vp-ce-body {
+  padding-top: 16px;
+  overflow: visible;
+}
+
+.vp-archive-essay-clamp {
+  display: block;
+  overflow: visible;
+  text-overflow: clip;
+  max-height: none;
+  margin-top: 0;
+  padding-right: 0;
+}
+
+.vp-archive-preview-footer {
+  display: flex;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.vp-archive-feature-more {
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.vp-archive-feature-more.disabled {
+  cursor: default;
+  color: var(--ink-mute);
+}
+
+.vp-archive-empty {
+  padding: 40px 28px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-mute);
+  letter-spacing: 0.1em;
+}
+
+/* ===== Archive List (메일함 리스트) ===== */
+
+.vp-archive-list {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 0;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  max-height: 450px;
+  overflow-y: auto;
+}
+
+.vp-archive-list::-webkit-scrollbar { width: 3px; }
+.vp-archive-list::-webkit-scrollbar-track { background: transparent; }
+.vp-archive-list::-webkit-scrollbar-thumb { background: var(--line-strong); }
+
+.vp-archive-list-item {
+  padding: 14px 12px 14px 12px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 0.12s;
+  border-left: 3px solid transparent;
+}
+
+.vp-archive-list-item:hover {
+  background: var(--ecru);
+}
+
+.vp-archive-list-item.is-active {
+  border-left-color: var(--brick);
+  background: var(--ecru);
+}
+
+.vp-archive-list-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.vp-archive-list-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--ink);
+  line-height: 1.5;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vp-archive-list-date {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--brick);
+  flex-shrink: 0;
+}
+
+.vp-archive-list-snippet {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink-dim);
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===== Eyebrow ===== */
+.vp-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ===== 피처 목록 ===== */
+.vp-archive-features {
+  margin-top: 28px;
+  border-top: 1px solid var(--ink);
+}
+
+.vp-archive-feature-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.vp-archive-feature-key {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--ink-mute);
+}
+
+.vp-archive-feature-val {
+  font-family: var(--serif);
+  font-size: 15px;
+}
+
+/* ===== 레이아웃 전환 ===== */
+.vp-archive-layout-toggle {
+  margin-top: 24px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.vp-archive-layout-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--ink-mute);
+}
+
+.vp-archive-layout-btn {
+  padding: 6px 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  border: 1px solid var(--ink);
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.vp-archive-layout-btn.active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.vp-archive-layout-btn:not(.active) {
+  background: transparent;
+  color: var(--ink);
+}
+
+/* ===== 메일 크롬 헤더 ===== */
+.vp-archive-mail-chrome {
+  padding: 10px 14px;
+  background: var(--ecru);
+  border-bottom: 1px solid var(--ink);
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-mute);
+  letter-spacing: 0.12em;
+}
+
+/* ===== ClassicEmail ===== */
+.vp-ce-masthead {
+  padding: 22px 28px 12px;
+  border-bottom: 2px solid var(--ink);
+  text-align: center;
+}
+
+.vp-ce-vol {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  color: var(--ink-mute);
+}
+
+.vp-ce-brand {
+  font-family: var(--serif);
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 4px;
+}
+
+.vp-ce-subtitle {
+  font-family: var(--serif);
+  font-size: 12px;
+  font-style: italic;
+  color: var(--ink-dim);
+  margin-top: 2px;
+}
+
+.vp-ce-artist-header {
+  padding: 24px 28px 12px;
+}
+
+.vp-ce-h1 {
+  font-family: var(--serif);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 10px 0 10px;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vp-ce-subtitle-small {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-style: italic;
+  color: var(--ink-dim);
+}
+
+.vp-ce-hero {
+  margin: 0 28px;
+}
+
+.vp-ce-hero-photo {
+  padding: 0 28px;
+  text-align: center;
+}
+
+.vp-ce-hero-img {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border: 1px dashed rgba(26, 26, 26, 0.25);
+}
+
+.vp-ce-body {
+  padding: 20px 28px 14px;
+}
+
+.vp-ce-quote {
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.75;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.vp-ce-essay {
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.85;
+  color: var(--ink-dim);
+  margin-top: 14px;
+  white-space: pre-line;
+}
+
+.vp-ce-divider {
+  height: 1px;
+  background: var(--ink);
+  margin: 0 28px;
+}
+
+.vp-ce-playlist {
+  padding: 18px 28px 14px;
+}
+
+.vp-ce-track-list {
+  margin-top: 10px;
+}
+
+.vp-ce-track {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.vp-ce-track-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+}
+
+.vp-ce-track-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.vp-ce-track-album {
+  font-family: var(--sans);
+  font-size: 10.5px;
+  color: var(--ink-mute);
+  margin-top: 2px;
+}
+
+.vp-ce-track-dur {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+}
+
+.vp-ce-tickets {
+  padding: 16px 28px 18px;
+  background: var(--ecru);
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
+
+.vp-ce-ticket-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vp-ce-ticket-row {
+  display: grid;
+  grid-template-columns: 70px 50px 1fr auto;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.vp-ce-ticket-date {
+  font-family: var(--mono);
+  color: var(--brick);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+.vp-ce-ticket-time {
+  font-family: var(--mono);
+  color: var(--ink-dim);
+  font-size: 10px;
+}
+
+.vp-ce-ticket-who {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.vp-ce-ticket-where {
+  font-family: var(--mono);
+  color: var(--ink-mute);
+  font-size: 10px;
+}
+
+.vp-ce-footer {
+  padding: 16px 28px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-mute);
+  letter-spacing: 0.14em;
+}
+
+/* ===== MagazineEmail ===== */
+.vp-me-header {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--ink);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.vp-me-brand {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.vp-me-issue {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--ink-mute);
+}
+
+.vp-me-hero-grid {
+  padding: 32px 28px 12px;
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 16px;
+}
+
+.vp-me-issue-num {
+  font-family: var(--serif);
+  font-size: 64px;
+  line-height: 0.9;
+  font-weight: 700;
+  color: var(--brick);
+}
+
+.vp-me-h1 {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.05;
+  margin: 6px 0 2px;
+  letter-spacing: -0.02em;
+}
+
+.vp-me-subtitle {
+  font-family: var(--serif);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink-dim);
+}
+
+.vp-me-hero {
+  margin: 14px 28px 0;
+}
+
+.vp-me-body {
+  padding: 20px 28px 14px;
+}
+
+.vp-me-quote {
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.75;
+  font-weight: 500;
+}
+
+.vp-me-essay {
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.85;
+  color: var(--ink-dim);
+  margin-top: 14px;
+  white-space: pre-line;
+}
+
+.vp-me-playlist {
+  padding: 18px 28px 14px;
+  background: var(--ecru);
+}
+
+.vp-me-track-list {
+  margin-top: 10px;
+}
+
+.vp-me-track {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.vp-me-track-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+}
+
+.vp-me-track-title {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.vp-me-track-dur {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+}
+
+.vp-me-tickets {
+  padding: 16px 28px;
+  border-top: 1px solid var(--ink);
+}
+
+.vp-me-ticket-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vp-me-ticket-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  align-items: baseline;
+}
+
+.vp-me-ticket-date {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--brick);
+  letter-spacing: 0.08em;
+}
+
+.vp-me-ticket-who {
+  font-family: var(--serif);
+  font-size: 14px;
+}
+
+.vp-me-footer {
+  padding: 14px 28px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-mute);
+  letter-spacing: 0.14em;
+  border-top: 1px solid var(--ink);
+}
+
+@media (max-width: 960px) {
+  .vp-archive-page {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+
+  .vp-archive-mockup {
+    width: 100%;
+  }
+}

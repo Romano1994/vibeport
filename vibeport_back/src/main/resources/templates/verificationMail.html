@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibeport — 이메일 인증</title>
+    <style>
+        body { margin:0; padding:0; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; background-color:#f4efe6; font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
+        table { border-collapse:collapse; border-spacing:0; }
+        img { border:0; line-height:100%; outline:none; text-decoration:none; }
+        .serif { font-family:'Noto Serif KR',Georgia,'Times New Roman',serif; }
+        .mono  { font-family:'JetBrains Mono','Menlo','Courier New',monospace; }
+        @media screen and (max-width:600px) {
+            .container-card { max-width:100% !important; }
+            .display-h1 { font-size:32px !important; }
+            .code-box   { font-size:28px !important; letter-spacing:0.3em !important; }
+        }
+    </style>
+</head>
+<body style="margin:0;padding:0;background:#f4efe6;">
+<!--[if !mso]><!-->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!--<![endif]-->
+
+<table class="outer" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f4efe6;">
+    <tr>
+        <td align="center" style="padding:0;">
+
+            <table class="container-card" width="640" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:640px;background-color:#f4efe6;">
+
+                <!-- Masthead -->
+                <tr>
+                    <td style="padding:28px 36px 14px 36px;border-bottom:2px solid #1a1a1a;text-align:center;">
+                        <div class="mono" style="font-size:9px;color:rgba(26,26,26,0.55);letter-spacing:0.25em;text-transform:uppercase;">
+                            <span th:text="${issueLabel} ?: 'EMAIL VERIFICATION · SEOUL'"></span>
+                        </div>
+                        <div class="serif" style="font-size:40px;font-weight:700;letter-spacing:-0.02em;color:#1a1a1a;margin-top:4px;">
+                            Vibeport
+                        </div>
+                        <div class="serif" style="font-size:12px;font-style:italic;color:rgba(26,26,26,0.78);margin-top:2px;">
+                            한국에서 만나는 목소리들, 매일 아침 한 장의 편지로.
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Eyebrow + title -->
+                <tr>
+                    <td style="padding:32px 36px 4px 36px;">
+                        <div class="mono" style="font-size:11px;color:#a03a2c;letter-spacing:0.18em;text-transform:uppercase;">
+                            Email Verification
+                        </div>
+                        <div class="display-h1 serif" style="font-size:40px;font-weight:700;line-height:1.1;letter-spacing:-0.02em;color:#1a1a1a;margin-top:14px;">
+                            인증 코드를<br>확인해 주세요.
+                        </div>
+                        <div class="serif" style="font-size:15px;font-style:italic;color:rgba(26,26,26,0.78);line-height:1.7;margin-top:12px;">
+                            Vibeport 구독을 완료하려면, 아래 여섯 자리 코드를<br>이메일 등록 화면에 입력해 주세요.
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Code block -->
+                <tr>
+                    <td style="padding:28px 36px 0 36px;">
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #1a1a1a;border-bottom:1px solid #1a1a1a;background-color:#e8e1d3;">
+                            <tr>
+                                <td style="padding:14px 20px 6px 20px;">
+                                    <div class="mono" style="font-size:10px;color:rgba(26,26,26,0.55);letter-spacing:0.18em;text-transform:uppercase;">
+                                        Verification Code
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="center" style="padding:4px 20px 22px 20px;">
+                                    <div class="code-box mono" style="font-size:38px;font-weight:500;letter-spacing:0.4em;color:#1a1a1a;text-align:center;padding-left:0.4em;">
+                                        <span th:text="${verifyCode}">123456</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Notes -->
+                <tr>
+                    <td style="padding:24px 36px 8px 36px;">
+                        <div class="mono" style="font-size:11px;color:#3d4a2a;letter-spacing:0.18em;text-transform:uppercase;">
+                            Notes
+                        </div>
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;">
+                            <tr>
+                                <td class="serif" style="padding:11px 0;border-bottom:1px solid rgba(26,26,26,0.14);font-size:14px;line-height:1.7;color:#1a1a1a;">
+                                    인증 코드는 발급 시점으로부터 일정 시간 동안만 유효합니다.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="serif" style="padding:11px 0;border-bottom:1px solid rgba(26,26,26,0.14);font-size:14px;line-height:1.7;color:#1a1a1a;">
+                                    이메일 등록 화면에 위 코드를 정확히 입력해 주세요.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="serif" style="padding:11px 0;font-size:14px;line-height:1.7;color:rgba(26,26,26,0.78);">
+                                    요청하지 않은 메일이라면 이 메일은 무시하셔도 됩니다.
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td style="padding:18px 36px 14px 36px;border-top:1px solid #1a1a1a;">
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td valign="middle" class="mono" style="font-size:10px;color:rgba(26,26,26,0.55);letter-spacing:0.14em;text-transform:uppercase;">
+                                    VIBEPORT.LIVE · EMAIL SECURITY
+                                </td>
+                                <td valign="middle" align="right" class="mono" style="font-size:10px;color:rgba(26,26,26,0.55);letter-spacing:0.14em;text-transform:uppercase;">
+                                    NO-REPLY
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Copyright stamp (inside card) -->
+                <tr>
+                    <td style="padding:0 36px 24px 36px;text-align:center;">
+                        <div class="mono" style="font-size:9px;color:rgba(26,26,26,0.55);letter-spacing:0.2em;text-transform:uppercase;">
+                            © Vibeport · Seoul · Daily Newsletter
+                        </div>
+                    </td>
+                </tr>
+
+            </table>
+
+        </td>
+    </tr>
+</table>
+</body>
+</html>

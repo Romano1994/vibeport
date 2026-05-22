@@ -1,0 +1,34 @@
+/* ===== About Page — 매거진 라이트 ===== */
+
+.vp-about-page {
+  padding: 64px 56px;
+  max-width: 720px;
+}
+
+.vp-about-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brick);
+}
+
+.vp-about-h1 {
+  font-family: var(--serif);
+  font-size: clamp(40px, 5vw, 56px);
+  font-weight: 700;
+  margin: 12px 0 24px;
+  letter-spacing: -0.02em;
+}
+
+.vp-about-body {
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.8;
+  color: var(--ink-dim);
+  margin-bottom: 20px;
+}
+
+.vp-about-body:last-child {
+  margin-bottom: 0;
+}

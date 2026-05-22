@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIBEPORT - Artist Info</title>
+    <style>
+        body {margin:0;padding:0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;background-color:#181b1b;}
+        table {border-collapse:collapse;border-spacing:0;}
+        img {border:0;line-height:100%;outline:none;text-decoration:none;}
+        @media screen and (max-width:600px) {
+            .outer-gradient {padding:8px 0 !important;}
+            .container-card {max-width:96% !important;border-radius:18px !important;}
+        }
+    </style>
+</head>
+<body style="margin:0;padding:0;background:#181b1b;">
+<table class="outer-gradient" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background:linear-gradient(to right,rgba(183,227,144,0.80),rgba(248,79,78,0.80));padding:16px 0;">
+    <tr>
+        <td align="center" style="padding:0 8px;">
+            <table class="container-card" width="760" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:720px;background-color:#101212;border-radius:24px;border:1px solid rgba(183,227,144,0.22);box-shadow:0 18px 40px rgba(0,0,0,0.5);">
+                <tr>
+                    <td style="padding:16px 12px 14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;color:#f5f5f5;">
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:8px;">
+                            <tr>
+                                <td valign="middle">
+                                    <table cellpadding="0" cellspacing="0" border="0">
+                                        <tr>
+                                            <td style="padding-left:4px;">
+                                                <div style="font-weight:800;letter-spacing:0.18em;font-size:20px;color:#ffffff;">VIBEPORT</div>
+                                                <div style="font-size:10px;color:#b0b3b3;margin-top:6px;">AI CURATED ARTIST INSIGHTS</div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td valign="middle" align="right">
+                                    <span style="display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid rgba(183,227,144,0.5);color:#b7e390;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;background-color:rgba(24,27,27,0.9);">
+                                        <span style="display:inline-block;width:8px;height:8px;border-radius:999px;background:#f84f4e;margin-right:4px;"></span>
+                                        <span>Artist Insight</span>
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 12px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;color:#f5f5f5;">
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;">
+                            <tr>
+                                <td>
+                                    <div style="color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.03em;">아티스트 리포트</div>
+                                    <div style="margin-top:6px;font-size:13px;color:#b0b3b3;line-height:1.6;">VIBEPORT AI가 생성한 아티스트 분석 내용을 확인하세요.</div>
+                                </td>
+                            </tr>
+                        </table>
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:12px;border-radius:18px;background-color:#090b0b;background-image:radial-gradient(circle at top left,rgba(183,227,144,0.1) 0,transparent 55%);border:1px solid rgba(255,255,255,0.04);box-shadow:0 14px 30px rgba(0,0,0,0.7);">
+                            <tr>
+                                <td style="padding:10px 8px 14px;">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                        <tr>
+                                            <td valign="middle">
+                                                <div style="font-size:13px;font-weight:600;color:#b7e390;">Artist Info</div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <!-- Artist Image -->
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;">
+                                        <tr>
+                                            <td align="center">
+                                                <img th:if="${artistImageCid != null}" th:src="|cid:${artistImageCid}|" alt="artist" width="220" height="220" style="width:220px;height:220px;object-fit:cover;border-radius:14px;display:block;border:1px solid rgba(255,255,255,0.08);" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:8px;">
+                                        <tr>
+                                            <td style="border-radius:12px;background-color:#0d0f0f;border:1px solid rgba(248,79,78,0.35);padding:12px 10px 16px;">
+                                                <div style="font-weight:500;font-size:13px;line-height:1.9;color:#f5f5f5;word-break:break-word;word-wrap:break-word;">
+                                                    <span th:utext="${#strings.replace(artistInfo, '\n', '<br/>')}"></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:12px;">
+                            <tr>
+                                <td valign="middle" style="font-size:11px;color:#b0b3b3;">
+                                    <span>실시간 생성을 기반으로 한 AI 콘텐츠입니다.</span>
+                                </td>
+                                <td valign="middle" align="right" style="font-size:11px;color:#b0b3b3;">
+                                    <div>Powered by <strong style="color:#ffffff;">VIBEPORT</strong></div>
+                                    <div>AI Artist Intelligence</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

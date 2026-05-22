@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibeport Newsletter</title>
+    <style>
+        body { margin:0; padding:0; background:#f4efe6; color:#1a1a1a; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+        table { border-collapse:collapse; border-spacing:0; }
+        img { border:0; outline:none; text-decoration:none; display:block; }
+        @media screen and (max-width:820px) {
+            .vp-wrap { padding:12px !important; }
+            .vp-card { width:100% !important; max-width:760px !important; }
+            .vp-hero-placeholder { height:180px !important; line-height:180px !important; }
+            .vp-title { font-size:36px !important; }
+        }
+    </style>
+</head>
+<body style="margin:0;padding:0;background:#f4efe6;color:#1a1a1a;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background:#f4efe6;">
+    <tr>
+        <td class="vp-wrap" align="center" style="padding:40px 20px;">
+            <table class="vp-card" role="presentation" width="760" cellpadding="0" cellspacing="0" border="0" style="width:760px;max-width:760px;background:#f4efe6;border:1px solid #1a1a1a;">
+                <tr>
+                    <td style="padding:10px 14px;background:#e8e1d3;border-bottom:1px solid #1a1a1a;font-family:'Courier New',monospace;font-size:9px;line-height:1.4;letter-spacing:0.12em;color:rgba(26,26,26,0.55);">
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td align="left" style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:0.12em;color:rgba(26,26,26,0.55);">
+                                    FROM Vibeport &lt;vibeport@gmail.com&gt;
+                                </td>
+                                <td align="right" style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:0.12em;color:rgba(26,26,26,0.55);" th:text="${sendDateText == null || sendDateText == '' ? 'VIBEPORT' : sendDateText + ' · ' + sendTimeText}">
+                                    2026.04.28 · 09:00
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td align="center" style="padding:22px 28px 12px;border-bottom:2px solid #1a1a1a;">
+                        <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:0.25em;color:rgba(26,26,26,0.55);" th:text="${'VOL.' + (volNumber == null ? 1 : volNumber) + (sendDateText == null || sendDateText == '' ? '' : ' · ' + sendDateText)}">
+                            VOL.1
+                        </div>
+                        <div style="font-family:Georgia,'Times New Roman',serif;font-size:38px;font-weight:700;letter-spacing:-0.02em;margin-top:4px;color:#1a1a1a;">
+                            Vibeport
+                        </div>
+                        <div style="font-family:Georgia,'Times New Roman',serif;font-size:12px;font-style:italic;color:rgba(26,26,26,0.78);margin-top:2px;">
+                            내한 아티스트를 위한 아침 편지
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:24px 28px 12px;">
+                        <div style="font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#a03a2c;">
+                            오늘의 아티스트
+                        </div>
+                        <div class="vp-title" style="font-family:Georgia,'Times New Roman',serif;font-size:44px;font-weight:700;line-height:1.05;margin:10px 0 10px;letter-spacing:-0.02em;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" th:text="${artistName}">
+                            Artist Name
+                        </div>
+                        <div style="font-family:Georgia,'Times New Roman',serif;font-size:14px;font-style:italic;color:rgba(26,26,26,0.78);" th:if="${artistNameKor != null and artistNameKor != ''}" th:text="${artistNameKor}">
+                            아티스트명
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td align="center" style="padding:0 28px;text-align:center;">
+                        <img th:if="${artistImageCid != null}" th:src="|cid:${artistImageCid}|" alt="artist" style="width:100%;max-width:500px;height:auto;border:1px dashed rgba(26,26,26,0.25);margin:0 auto;" />
+                        <div th:if="${artistImageCid == null}" class="vp-hero-placeholder" style="height:220px;border:1px dashed rgba(26,26,26,0.25);background:repeating-linear-gradient(135deg,rgba(26,26,26,0.05) 0 8px,transparent 8px 16px);font-family:'Courier New',monospace;font-size:10px;letter-spacing:0.06em;color:rgba(26,26,26,0.55);text-align:center;line-height:220px;">
+                            ARTIST · HERO PHOTO
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:20px 28px 14px;">
+                        <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans-serif;font-size:13px;line-height:1.85;color:rgba(26,26,26,0.78);white-space:normal;word-break:keep-all;">
+                            <span th:utext="${#strings.replace(artistInfo, '\n', '<br/>')}"></span>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:16px 28px;border-top:1px solid rgba(26,26,26,0.14);font-family:'Courier New',monospace;font-size:9px;letter-spacing:0.14em;color:rgba(26,26,26,0.55);">
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td align="left" style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:0.14em;color:rgba(26,26,26,0.55);" th:text="${sendDateText == null || sendDateText == '' ? 'VIBEPORT.KR' : sendDateText}">
+                                    VIBEPORT.KR
+                                </td>
+                                <td align="right" style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:0.14em;color:rgba(26,26,26,0.55);">
+                                    SEE YOU TOMORROW
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

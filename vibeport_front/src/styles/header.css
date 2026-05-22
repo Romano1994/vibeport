@@ -1,0 +1,65 @@
+/* ===== Header — 매거진 라이트 ===== */
+
+.vp-header {
+  background: var(--paper);
+  border-bottom: 1px solid var(--ink);
+}
+
+/* ===== 메인 네비바 ===== */
+.vp-header-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 56px 16px;
+}
+
+.vp-header-logo-group {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+}
+
+.vp-header-logo {
+  font-family: var(--serif);
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.vp-header-tagline {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+  letter-spacing: 0.16em;
+}
+
+.vp-header-nav {
+  display: flex;
+  gap: 32px;
+}
+
+.vp-header-meta {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.vp-header-date {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+  letter-spacing: 0.14em;
+}
+
+/* ===== 이슈바 ===== */
+.vp-header-issuebar {
+  padding: 8px 56px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+  letter-spacing: 0.14em;
+}

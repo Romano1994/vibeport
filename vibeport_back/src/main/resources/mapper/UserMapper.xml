@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vibeport.user.mapper.UserMapper">
+
+    <select id="checkEmailExists" parameterType="String" resultType="Boolean">
+        /* UserMapper.checkEmailExists 이미 가입된 이메일인지 확인 */
+        SELECT EXISTS (
+            SELECT 1
+            FROM TB_EMAIL
+            WHERE EMAIL = #{email}
+        )
+    </select>
+
+    <insert id="insertEmailVerificationCodes">
+        /* UserMapper.insertEmailVerificationCodes 이메일 인증 코드 삽입 */
+        INSERT INTO TB_VERIF_CODE (
+            CODE
+            , EMAIL
+            , CNT
+            , REG_TIME
+        ) VALUES (
+            #{code}
+            , #{email}
+            , (SELECT CNT FROM (
+                     SELECT IFNULL(COUNT(*), 0) + 1 AS CNT
+                     FROM TB_VERIF_CODE
+                     WHERE EMAIL = #{email}
+            ) AS A)
+            ,NOW()
+        )
+    </insert>
+
+    <select id="selectIsRightCode" parameterType="com.vibeport.user.vo.VerifCodeVo" resultType="boolean">
+        /* UserMapper.selectIsRightCode 이메일 인증 코드가 올바른지 확인 */
+        SELECT EXISTS (
+            SELECT 1
+            FROM TB_VERIF_CODE
+            WHERE EMAIL = #{email}
+              AND CODE = #{code}
+        )
+    </select>
+
+    <insert id="insertUser">
+        /* UserMapper.insertUser 새로운 사용자 저장 */
+        INSERT INTO TB_USER (
+            USER_NO
+            , EMAIL
+            , USER_NAME
+            , PASSWORD
+            , ADMIN_YN
+            , ROLE
+            , LOCK_YN
+            , LOCK_DATE
+            , REG_DATE
+        ) VALUES (
+            #{userNo}
+            , #{email}
+            , #{userName}
+            , #{password}
+            , 'N'
+            , 'USER'
+            , 'N'
+            , NULL
+            , NOW()
+        )
+    </insert>
+
+    <delete id="deletePreVerifCode">
+        /* UserMapper.deletePreVerifCode 이전 인증 코드 삭제 */
+        DELETE FROM TB_VERIF_CODE
+        WHERE EMAIL = #{email}
+    </delete>
+
+    <select id="isCorrectEmail" parameterType="Map" resultType="Boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM TB_VERIF_CODE
+            WHERE EMAIL = #{email}
+              AND CODE = #{code}
+        )
+    </select>
+    
+    <insert id="insertEmail">
+        INSERT INTO TB_EMAIL (
+            EMAIL
+            , USE_YN
+            , REG_TIME
+        ) VALUES (
+            #{email}
+            , 'Y'
+            , NOW()
+        )
+    </insert>
+
+    <select id="selectLatestLatter" resultType="com.vibeport.ai.vo.ArtistMsgVo">
+        SELECT A.MSG_NO AS msgNo
+             , A.ARTIST_NM_KOR   AS artistNmKor
+             , C.ARTIST_NM_FOR   AS artistNmFor
+             , A.CONCERT_YEAR    AS concertYear
+             , A.CONCERT_MONTH   AS concertMonth
+             , A.CONCERT_DATE    AS concertDate
+             , A.SUBJECT         AS subject
+             , A.CONTENT         AS content
+             , A.ARTIST_IMAGE_URL AS artistImageUrl
+             , DATE_FORMAT(A.REG_TIME, '%Y-%m-%d %H:%i') AS regTime
+          FROM TB_ARTIST_MSG AS A
+          LEFT OUTER JOIN TB_CONCERT_INFO AS C
+            ON A.ARTIST_NM_KOR = C.ARTIST_NM_KOR
+           AND A.CONCERT_YEAR = C.CONCERT_YEAR
+           AND A.CONCERT_MONTH = C.CONCERT_MONTH
+           AND A.CONCERT_DATE = C.CONCERT_DATE
+         WHERE A.SEND_YN = 'Y'
+         ORDER BY A.MSG_NO DESC
+         LIMIT 1
+    </select>
+
+    <select id="selectSentLetters" resultType="com.vibeport.ai.vo.ArtistMsgVo">
+        SELECT A.MSG_NO AS msgNo
+             , A.ARTIST_NM_KOR   AS artistNmKor
+             , C.ARTIST_NM_FOR   AS artistNmFor
+             , A.CONCERT_YEAR    AS concertYear
+             , A.CONCERT_MONTH   AS concertMonth
+             , A.CONCERT_DATE    AS concertDate
+             , A.SUBJECT         AS subject
+             , A.CONTENT         AS content
+             , A.ARTIST_IMAGE_URL AS artistImageUrl
+             , DATE_FORMAT(A.REG_TIME, '%Y-%m-%d %H:%i') AS regTime
+          FROM TB_ARTIST_MSG AS A
+          LEFT OUTER JOIN TB_CONCERT_INFO AS C
+            ON A.ARTIST_NM_KOR = C.ARTIST_NM_KOR
+           AND A.CONCERT_YEAR = C.CONCERT_YEAR
+           AND A.CONCERT_MONTH = C.CONCERT_MONTH
+           AND A.CONCERT_DATE = C.CONCERT_DATE
+         WHERE A.SEND_YN = 'Y'
+         ORDER BY A.MSG_NO DESC
+         LIMIT 5
+    </select>
+</mapper>

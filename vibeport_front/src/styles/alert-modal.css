@@ -1,0 +1,53 @@
+/* Alert Modal — 매거진 라이트 */
+.am-overlay {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(26, 26, 26, 0.5);
+  z-index: 1400;
+}
+
+.am-modal {
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  padding: 24px 28px;
+  width: 360px;
+  max-width: calc(100% - 32px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+
+.am-body {
+  padding: 8px 0 16px;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+.am-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--paper);
+  border: 1px solid var(--ink);
+}
+
+.btn:hover { background: var(--ecru); }
+.btn-primary:hover { opacity: 0.85; }

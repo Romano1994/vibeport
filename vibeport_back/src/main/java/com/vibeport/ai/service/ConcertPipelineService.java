@@ -47,18 +47,24 @@ public class ConcertPipelineService {
     public void runDailyPipeline() {
         log.info("[ConcertPipelineService] 일별 파이프라인 시작");
 
-        collectDailyConcerts();
-        sendDailyNewsletter();
+        boolean newsletterSentDuringCollection = collectDailyConcertsInternal();
+        if (!newsletterSentDuringCollection) {
+            sendDailyNewsletter();
+        }
 
         log.info("[ConcertPipelineService] 일별 파이프라인 완료");
     }
 
     public void collectDailyConcerts() {
-        collectNextMonthConcerts();
+        collectDailyConcertsInternal();
     }
 
     public void sendDailyNewsletter() {
         generateAndSendNewsletter();
+    }
+
+    private boolean collectDailyConcertsInternal() {
+        return collectNextMonthConcerts();
     }
 
     // -------------------------------------------------------------------------
@@ -127,7 +133,7 @@ public class ConcertPipelineService {
     // Step 1: 향후 3개월 공연 수집 (비동기 병렬)
     // -------------------------------------------------------------------------
 
-    private void collectNextMonthConcerts() {
+    private boolean collectNextMonthConcerts() {
         LocalDate now = LocalDate.now();
         List<LocalDate> targets = List.of(
                 now.plusMonths(1),
@@ -164,8 +170,8 @@ public class ConcertPipelineService {
             log.info(allResults.toString());
 
             if (allResults.isEmpty()) {
-                log.info("[ConcertPipelineService] Step2 - 수집된 공연 없음. 스킵.");
-                return;
+                log.info("[ConcertPipelineService] Step2 - 수집된 공연 없음. DB 미발송 공연 뉴스레터 발송 시도.");
+                return generateAndSendNewsletter();
             }
 
             List<ConcertInfoVo> savedList = loadSavedConcerts();
@@ -175,6 +181,7 @@ public class ConcertPipelineService {
             // '미정' 항목 보강
             newList = enrichMissingConcertFields(newList);
             saveConcerts(newList);
+            return false;
         } finally {
             executor.shutdown();
         }
@@ -194,13 +201,13 @@ public class ConcertPipelineService {
     // Step 2: 뉴스레터 생성 및 발송
     // -------------------------------------------------------------------------
 
-    private void generateAndSendNewsletter() {
+    private boolean generateAndSendNewsletter() {
         log.info("[ConcertPipelineService] Step3 - 뉴스레터 생성 및 발송 시작");
 
         ConcertInfoVo concert = aiMapper.selectTopPopUnsentConcert();
         if (concert == null) {
             log.info("[ConcertPipelineService] Step3 - 발송 대상 공연 없음. 스킵.");
-            return;
+            return false;
         }
         log.info("[ConcertPipelineService] Step3 - 대상 공연: {}({}), popScore={}",
                 concert.getArtistNmKor(), concert.getArtistNmFor(), concert.getPopScore());
@@ -210,7 +217,7 @@ public class ConcertPipelineService {
             artistMsgVo = newsletterService.generate(concert);
         } catch (Exception e) {
             log.error("[ConcertPipelineService] Step3 - 뉴스레터 생성 실패: {}", e.getMessage(), e);
-            return;
+            return false;
         }
 
         // DB 저장 (artistImageUrl 컬럼 포함 - 미리보기에서 사용)
@@ -236,6 +243,7 @@ public class ConcertPipelineService {
         aiMapper.updateArtistMsgSendYn(artistMsgVo);
         aiMapper.updateConcertInfoSendYn(artistMsgVo);
         log.info("[ConcertPipelineService] Step3 - 발송 상태 업데이트 완료");
+        return true;
     }
 
     // -------------------------------------------------------------------------

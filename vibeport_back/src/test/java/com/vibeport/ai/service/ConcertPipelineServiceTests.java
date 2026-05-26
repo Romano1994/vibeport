@@ -3,7 +3,9 @@ package com.vibeport.ai.service;
 import com.vibeport.ai.client.GeminiClient;
 import com.vibeport.ai.client.OpenAiClient;
 import com.vibeport.ai.mapper.AiMapper;
+import com.vibeport.ai.vo.ArtistMsgVo;
 import com.vibeport.ai.vo.ConcertInfoVo;
+import com.vibeport.mail.service.ArtistMsgMailService;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -173,8 +176,64 @@ class ConcertPipelineServiceTests {
         assertEquals(List.of(), result.get("skippedConcertNos"));
     }
 
+    @Test
+    void collectDailyConcertsSendsNewsletterForTopPopUnsentConcertWhenNoConcertsAreCollected() {
+        GeminiClient geminiClient = mock(GeminiClient.class);
+        AiMapper aiMapper = mock(AiMapper.class);
+        NewsletterService newsletterService = mock(NewsletterService.class);
+        ArtistMsgMailService artistMsgMailService = mock(ArtistMsgMailService.class);
+        ConcertPipelineService service = service(
+                geminiClient,
+                null,
+                aiMapper,
+                newsletterService,
+                artistMsgMailService
+        );
+
+        ConcertInfoVo topConcert = missingConcert(10);
+        topConcert.setPopScore(95);
+        ArtistMsgVo artistMsgVo = new ArtistMsgVo();
+        artistMsgVo.setArtistNmKor(topConcert.getArtistNmKor());
+        artistMsgVo.setArtistNmFor(topConcert.getArtistNmFor());
+        artistMsgVo.setConcertYear(topConcert.getConcertYear());
+        artistMsgVo.setConcertMonth(topConcert.getConcertMonth());
+        artistMsgVo.setConcertDate(topConcert.getConcertDate());
+        artistMsgVo.setSubject("Top pop concert");
+        artistMsgVo.setContent("Newsletter content");
+
+        when(geminiClient.getConcertInfos(anyInt(), anyInt())).thenReturn(List.of());
+        when(aiMapper.selectTopPopUnsentConcert()).thenReturn(topConcert);
+        when(newsletterService.generate(topConcert)).thenReturn(artistMsgVo);
+        when(aiMapper.selectEmailList()).thenReturn(List.of("test@example.com"));
+
+        service.collectDailyConcerts();
+
+        verify(newsletterService).generate(topConcert);
+        verify(aiMapper).insertArtistMsg(artistMsgVo);
+        verify(artistMsgMailService).artistMsgEmailSend(List.of("test@example.com"), artistMsgVo);
+        verify(aiMapper).updateArtistMsgSendYn(artistMsgVo);
+        verify(aiMapper).updateConcertInfoSendYn(artistMsgVo);
+    }
+
     private ConcertPipelineService service(GeminiClient geminiClient, OpenAiClient openAiClient, AiMapper aiMapper) {
         return new ConcertPipelineService(geminiClient, openAiClient, aiMapper, null, null, null);
+    }
+
+    private ConcertPipelineService service(
+            GeminiClient geminiClient,
+            OpenAiClient openAiClient,
+            AiMapper aiMapper,
+            NewsletterService newsletterService,
+            ArtistMsgMailService artistMsgMailService
+    ) {
+        return new ConcertPipelineService(
+                geminiClient,
+                openAiClient,
+                aiMapper,
+                newsletterService,
+                artistMsgMailService,
+                null
+        );
     }
 
     private ConcertInfoVo missingConcert(int concertNo) {

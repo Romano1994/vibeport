@@ -317,7 +317,7 @@ public class ConcertPipelineService {
         ExecutorService executor = Executors.newFixedThreadPool(parallelPoolSize(concerts.size()));
         try {
             List<CompletableFuture<ConcertInfoVo>> futures = concerts.stream()
-                    .map(concert -> CompletableFuture.supplyAsync(() -> enrichMissingConcertFieldsWithGemini(concert), executor))
+                    .map(concert -> CompletableFuture.supplyAsync(() -> enrichMissingConcertFieldsWithOpenAi(concert), executor))
                     .toList();
 
             futures.forEach(CompletableFuture::join);
@@ -376,7 +376,7 @@ public class ConcertPipelineService {
         return result;
     }
 
-    private ConcertInfoVo enrichMissingConcertFieldsWithGemini(ConcertInfoVo concert) {
+    private ConcertInfoVo enrichMissingConcertFieldsWithOpenAi(ConcertInfoVo concert) {
         Set<String> missingFields = findMissingConcertFields(concert);
         if (missingFields.isEmpty()) {
             return concert;
@@ -385,7 +385,7 @@ public class ConcertPipelineService {
         normalizeMissingFields(concert, missingFields);
 
         try {
-            ConcertInfoVo enriched = geminiClient.fetchMissingConcertFields(concert, missingFields);
+            ConcertInfoVo enriched = openAiClient.fetchMissingConcertFields(concert, missingFields);
             applyMissingConcertFields(concert, enriched, missingFields);
         } catch (Exception e) {
             log.error("[ConcertPipelineService] Missing concert field enrichment failed - artistNmKor={}, date={}-{}-{}, fields={}: {}",

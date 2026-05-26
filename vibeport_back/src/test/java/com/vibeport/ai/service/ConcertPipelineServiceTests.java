@@ -42,7 +42,8 @@ class ConcertPipelineServiceTests {
     @Test
     void enrichMissingConcertFieldsUpdatesOnlyOriginallyMissingFields() {
         GeminiClient geminiClient = mock(GeminiClient.class);
-        ConcertPipelineService service = service(geminiClient, null, null);
+        OpenAiClient openAiClient = mock(OpenAiClient.class);
+        ConcertPipelineService service = service(geminiClient, openAiClient, null);
 
         ConcertInfoVo concert = new ConcertInfoVo();
         concert.setArtistNmKor("Test Artist");
@@ -59,7 +60,7 @@ class ConcertPipelineServiceTests {
         enriched.setVenue("KSPO DOME");
         enriched.setTctSite("YES24 Ticket");
         enriched.setTctOpenAt("2026-06-01 20:00");
-        when(geminiClient.fetchMissingConcertFields(any(ConcertInfoVo.class), anySet())).thenReturn(enriched);
+        when(openAiClient.fetchMissingConcertFields(any(ConcertInfoVo.class), anySet())).thenReturn(enriched);
 
         service.enrichMissingConcertFields(List.of(concert));
 
@@ -67,20 +68,22 @@ class ConcertPipelineServiceTests {
         assertEquals("KSPO DOME", concert.getVenue());
         assertEquals("NOL Ticket", concert.getTctSite());
         assertEquals("2026-06-01 20:00", concert.getTctOpenAt());
-        verify(geminiClient).fetchMissingConcertFields(any(ConcertInfoVo.class), anySet());
+        verify(openAiClient).fetchMissingConcertFields(any(ConcertInfoVo.class), anySet());
+        verify(geminiClient, never()).fetchMissingConcertFields(any(ConcertInfoVo.class), anySet());
     }
 
     @Test
     void enrichMissingConcertFieldsKeepsUnknownWhenAiReturnsNull() {
         GeminiClient geminiClient = mock(GeminiClient.class);
-        ConcertPipelineService service = service(geminiClient, null, null);
+        OpenAiClient openAiClient = mock(OpenAiClient.class);
+        ConcertPipelineService service = service(geminiClient, openAiClient, null);
 
         ConcertInfoVo concert = new ConcertInfoVo();
         concert.setConcertTime("0000");
         concert.setVenue("");
         concert.setTctSite(null);
         concert.setTctOpenAt(UNKNOWN);
-        when(geminiClient.fetchMissingConcertFields(any(ConcertInfoVo.class), anySet())).thenReturn(null);
+        when(openAiClient.fetchMissingConcertFields(any(ConcertInfoVo.class), anySet())).thenReturn(null);
 
         service.enrichMissingConcertFields(List.of(concert));
 
@@ -88,12 +91,15 @@ class ConcertPipelineServiceTests {
         assertEquals(UNKNOWN, concert.getVenue());
         assertEquals(UNKNOWN, concert.getTctSite());
         assertEquals(UNKNOWN, concert.getTctOpenAt());
+        verify(openAiClient).fetchMissingConcertFields(any(ConcertInfoVo.class), anySet());
+        verify(geminiClient, never()).fetchMissingConcertFields(any(ConcertInfoVo.class), anySet());
     }
 
     @Test
     void enrichMissingConcertFieldsSkipsAiCallWhenNoFieldsAreMissing() {
         GeminiClient geminiClient = mock(GeminiClient.class);
-        ConcertPipelineService service = service(geminiClient, null, null);
+        OpenAiClient openAiClient = mock(OpenAiClient.class);
+        ConcertPipelineService service = service(geminiClient, openAiClient, null);
 
         ConcertInfoVo concert = new ConcertInfoVo();
         concert.setConcertTime("1900");
@@ -104,15 +110,17 @@ class ConcertPipelineServiceTests {
         service.enrichMissingConcertFields(List.of(concert));
 
         verify(geminiClient, never()).fetchMissingConcertFields(any(ConcertInfoVo.class), anySet());
+        verify(openAiClient, never()).fetchMissingConcertFields(any(ConcertInfoVo.class), anySet());
     }
 
     @Test
     void enrichMissingConcertFieldsLimitsParallelTasksToFive() {
         GeminiClient geminiClient = mock(GeminiClient.class);
-        ConcertPipelineService service = service(geminiClient, null, null);
+        OpenAiClient openAiClient = mock(OpenAiClient.class);
+        ConcertPipelineService service = service(geminiClient, openAiClient, null);
         ConcurrentCallTracker tracker = new ConcurrentCallTracker(5);
 
-        when(geminiClient.fetchMissingConcertFields(any(ConcertInfoVo.class), anySet())).thenAnswer(invocation -> {
+        when(openAiClient.fetchMissingConcertFields(any(ConcertInfoVo.class), anySet())).thenAnswer(invocation -> {
             tracker.enterAndWaitForPeers();
 
             ConcertInfoVo enriched = new ConcertInfoVo();

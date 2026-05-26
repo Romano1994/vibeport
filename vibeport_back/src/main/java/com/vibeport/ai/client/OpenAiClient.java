@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -26,11 +28,23 @@ public class OpenAiClient {
 
     private final WebClient webClient;
 
-    @Value("${openai.chat.model:gpt-4o}")
+    @Value("${openai.chat.model:gpt-5.4-mini}")
     private String model;
 
-    @Value("${openai.responses.model:gpt-4.1}")
+    @Value("${openai.responses.model:gpt-5.4-nano}")
     private String responsesModel;
+
+    @Value("${openai.newsletter.retry.max-attempts:3}")
+    private int newsletterRetryMaxAttempts;
+
+    @Value("${openai.newsletter.retry.backoff-ms:1000}")
+    private long newsletterRetryBackoffMs;
+
+    @Value("${openai.newsletter.retry.max-backoff-ms:10000}")
+    private long newsletterRetryMaxBackoffMs;
+
+    @Value("${openai.newsletter.retry.jitter-factor:0.5}")
+    private double newsletterRetryJitterFactor;
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -47,16 +61,7 @@ public class OpenAiClient {
      * @return 파싱된 JSON 응답 Map (key: subject, content 등)
      */
     public Map<String, String> generateNewsletter(String systemPrompt, String userPrompt) {
-        Map<String, Object> requestBody = Map.of(
-                "model", model,
-                "messages", List.of(
-                        Map.of("role", "system", "content", systemPrompt),
-                        Map.of("role", "user", "content", userPrompt)
-                ),
-                "response_format", Map.of("type", "json_object"),
-                "temperature", 0.7,
-                "max_tokens", 2000
-        );
+        Map<String, Object> requestBody = buildNewsletterRequestBody(systemPrompt, userPrompt);
 
         log.info("OpenAI 뉴스레터 생성 요청 - model: {}", model);
 
@@ -66,6 +71,7 @@ public class OpenAiClient {
                     .bodyValue(requestBody)
                     .retrieve()
                     .bodyToMono(String.class)
+                    .retryWhen(newsletterRetrySpec())
                     .block();
 
             log.info("OpenAI 응답 수신 완료");
@@ -101,6 +107,56 @@ public class OpenAiClient {
             log.error("OpenAI 뉴스레터 생성 실패", e);
             throw new RuntimeException("OpenAI 뉴스레터 생성 실패: " + e.getMessage(), e);
         }
+    }
+
+    private Map<String, Object> buildNewsletterRequestBody(String systemPrompt, String userPrompt) {
+        Map<String, Object> requestBody = new LinkedHashMap<>();
+        requestBody.put("model", model);
+        requestBody.put("messages", List.of(
+                Map.of("role", "system", "content", systemPrompt),
+                Map.of("role", "user", "content", userPrompt)
+        ));
+        requestBody.put("response_format", Map.of("type", "json_object"));
+
+        if (isGpt5FamilyModel(model)) {
+            requestBody.put("max_completion_tokens", 2000);
+        } else {
+            requestBody.put("temperature", 0.7);
+            requestBody.put("max_tokens", 2000);
+        }
+        return requestBody;
+    }
+
+    private boolean isGpt5FamilyModel(String modelName) {
+        return modelName != null && modelName.toLowerCase().startsWith("gpt-5");
+    }
+
+    private Retry newsletterRetrySpec() {
+        long retryBackoffMs = Math.max(1, newsletterRetryBackoffMs);
+        long retryMaxBackoffMs = Math.max(retryBackoffMs, newsletterRetryMaxBackoffMs);
+
+        return Retry.backoff(
+                        Math.max(0, newsletterRetryMaxAttempts - 1),
+                        Duration.ofMillis(retryBackoffMs)
+                )
+                .maxBackoff(Duration.ofMillis(retryMaxBackoffMs))
+                .jitter(Math.max(0, Math.min(1, newsletterRetryJitterFactor)))
+                .filter(this::isRetryableOpenAiException)
+                .doBeforeRetry(signal -> log.warn(
+                        "Retrying OpenAI newsletter request with backoff - attempt={}, reason={}",
+                        signal.totalRetries() + 2,
+                        signal.failure().getMessage()
+                ))
+                .onRetryExhaustedThrow((spec, signal) -> signal.failure());
+    }
+
+    private boolean isRetryableOpenAiException(Throwable throwable) {
+        if (!(throwable instanceof WebClientResponseException ex)) {
+            return false;
+        }
+
+        int statusCode = ex.getStatusCode().value();
+        return statusCode == 429 || (statusCode >= 500 && statusCode < 600);
     }
 
     public ConcertInfoVo fetchMissingConcertFields(ConcertInfoVo concert, Set<String> missingFields) {

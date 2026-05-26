@@ -21,6 +21,7 @@ Output contract:
 - If there are no confirmed concerts, return only "-".
 - Each line must contain exactly 8 slash-separated fields in this order:
 artistNmKor / artistNmFor / concertDateTime / venue / tctSite / tctOpenAt / genre / popScore
+- If various artists having concert together, answer concert's name as artistNmKor, artistNmFor
 
 Field rules:
 - artistNmKor: Korean artist name. If no Korean name is commonly used, use the English name.

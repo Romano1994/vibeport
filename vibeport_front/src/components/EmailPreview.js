@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import client from '../api/client';
 import { htmlToPlainText, truncateText } from '../utils/TextUtils';
 
@@ -59,14 +59,19 @@ function EmailPreview({
   showReadMore = false,
   onReadMore,
 }) {
-  const sendDate = parseFeatureDate(feature);
-  const sendDateText = formatSendDate(sendDate);
-  const volNumber = calculateVolNumber(sendDate);
+  const sendDate = useMemo(() => parseFeatureDate(feature), [feature]);
+  const sendDateText = useMemo(() => formatSendDate(sendDate), [sendDate]);
+  const volNumber = useMemo(() => calculateVolNumber(sendDate), [sendDate]);
   const artistName = feature?.artistNmFor || feature?.artistNmKor || '';
-  const plainContent = htmlToPlainText(feature?.content);
-  const content = previewMaxLength ? truncateText(plainContent, previewMaxLength) : plainContent;
+  const plainContent = useMemo(() => {
+    if (feature?.plainContent !== undefined) return feature.plainContent;
+    return htmlToPlainText(feature?.content);
+  }, [feature]);
+  const content = useMemo(() => {
+    return previewMaxLength ? truncateText(plainContent, previewMaxLength) : plainContent;
+  }, [plainContent, previewMaxLength]);
   const rawImage = feature?.artistImageUrl;
-  const imageSrc = resolveImageSrc(rawImage);
+  const imageSrc = useMemo(() => resolveImageSrc(rawImage), [rawImage]);
   const [imageFailed, setImageFailed] = useState(false);
   useEffect(() => { setImageFailed(false); }, [imageSrc]);
 
@@ -101,6 +106,8 @@ function EmailPreview({
                 src={imageSrc}
                 alt={`${artistName} 사진`}
                 className="vp-ce-hero-img"
+                loading="eager"
+                decoding="async"
                 onError={() => setImageFailed(true)}
               />
             </div>
@@ -136,4 +143,4 @@ function EmailPreview({
   );
 }
 
-export default EmailPreview;
+export default memo(EmailPreview);

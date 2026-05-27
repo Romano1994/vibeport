@@ -13,7 +13,10 @@ import org.springframework.stereotype.Component;
 
 import org.springframework.core.io.ClassPathResource;
 
+import net.coobird.thumbnailator.Thumbnails;
+
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,7 +28,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -39,6 +41,10 @@ public class GeminiClient {
     private static final String GEMINI_MISSING_FIELD_MODEL = "gemini-2.5-pro";
     private static final int MISSING_FIELD_TIMEOUT_MS = 180_000;
     private static final int MISSING_FIELD_MAX_OUTPUT_TOKENS = 4096;
+
+    // 아티스트 이미지 저장 시 리사이징 기준 (미리보기 max-width 500px의 레티나 2배)
+    private static final int MAX_IMAGE_DIMENSION = 1000;
+    private static final double JPEG_QUALITY = 0.8d;
 
     private final Client client;
     private final Tool googleSearchTool;
@@ -460,7 +466,7 @@ public class GeminiClient {
         return List.of();
     }
 
-    // URL의 이미지를 서버 파일로 저장
+    // URL의 이미지를 서버 파일로 저장 (저장 시점에 리사이징/재압축)
     public String saveImageFromServer(String imageUrl, String fileName) throws IOException {
         // 저장할 폴더가 없으면 생성
         String dirPath = ensureTrailingSlash(imageDir);
@@ -475,17 +481,43 @@ public class GeminiClient {
         connection.setRequestProperty("Referer", "https://www.google.com/");
 
         String contentType = connection.getContentType();
-        String ext = extFromContentType(contentType);
-        if (ext == null) {
-            ext = ".jpg";
-        }
-        String finalFileName = fileName + ext;
 
+        // 원본 바이트를 메모리로 읽은 뒤 리사이징을 시도하고, 실패하면 원본을 그대로 저장한다.
+        byte[] imageBytes;
         try (InputStream in = connection.getInputStream()) {
-            // Files.copy를 이용해 입력 스트림을 파일로 저장
-            Files.copy(in, Paths.get(dirPath + finalFileName), StandardCopyOption.REPLACE_EXISTING);
+            imageBytes = in.readAllBytes();
         }
-        return finalFileName;
+
+        try {
+            String jpgFileName = fileName + ".jpg";
+            resizeToJpeg(imageBytes, dirPath + jpgFileName);
+            return jpgFileName;
+        } catch (Exception e) {
+            // webp/gif 등 디코딩 불가 입력은 원본을 그대로 저장 (fallback)
+            log.warn("Image resize failed, save original. url={}, cause={}", imageUrl, e.toString());
+            String ext = extFromContentType(contentType);
+            if (ext == null) {
+                ext = ".jpg";
+            }
+            String finalFileName = fileName + ext;
+            Files.write(Paths.get(dirPath + finalFileName), imageBytes);
+            return finalFileName;
+        }
+    }
+
+    /**
+     * 이미지 바이트를 폭/높이 최대 {@value #MAX_IMAGE_DIMENSION}px, JPEG 품질 {@value #JPEG_QUALITY}로
+     * 리사이징하여 지정 경로에 저장한다. 비율은 유지된다. 디코딩 불가 입력이면 IOException을 던진다.
+     */
+    public static void resizeToJpeg(byte[] imageBytes, String targetPath) throws IOException {
+        try (InputStream src = new ByteArrayInputStream(imageBytes)) {
+            Thumbnails.of(src)
+                    .size(MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION)
+                    .keepAspectRatio(true)
+                    .outputFormat("jpg")
+                    .outputQuality(JPEG_QUALITY)
+                    .toFile(new File(targetPath));
+        }
     }
 
     private String buildPublicImageUrl(String path) {

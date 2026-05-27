@@ -29,6 +29,11 @@ function tintFor(concert) {
     ? 'rgba(61,74,42,0.10)'
     : 'rgba(160,58,44,0.09)';
 }
+function hoverTintFor(concert) {
+  return concert?.genre === 'pop'
+    ? 'rgba(61,74,42,0.18)'
+    : 'rgba(160,58,44,0.16)';
+}
 
 
 function Calendar() {
@@ -37,7 +42,6 @@ function Calendar() {
   const [year,  setYear]  = useState(initFeature?.year  ?? now.getFullYear());
   const [month, setMonth] = useState(initFeature?.month ?? now.getMonth());
   const [concertInfos, setConcertInfos] = useState([]);
-  const [hoveredDay, setHoveredDay]     = useState(null);
   const [showSidebar, setShowSidebar]   = useState(false);
   const [selectedDay, setSelectedDay]   = useState(null);
   const [isAnimating, setIsAnimating]   = useState(false);
@@ -122,6 +126,14 @@ function Calendar() {
       detail: { isOpen: false, concert: null },
     });
   }, []);
+  const handleCellClick = useCallback((date, concerts) => {
+    if (!concerts.length) return;
+    if (concerts.length > 2) {
+      openList(date, concerts);
+      return;
+    }
+    openDetail(concerts[concerts.length - 1], date);
+  }, [openDetail, openList]);
   const closeSidebar = useCallback(() => {
     setShowSidebar(false);
     setSelectedDay(null);
@@ -172,20 +184,16 @@ function Calendar() {
               const isToday   = isCurrentMonth && d === today;
               const dow       = i % 7;
               const isWeekend = dow === 0 || dow === 6;
-              const isHovered = hoveredDay === d;
 
               return (
                 <div
                   key={i}
-                  onMouseEnter={() => d && setHoveredDay(d)}
-                  onMouseLeave={() => setHoveredDay(null)}
-                  onClick={() => has && openDetail(concerts[0], d)}
+                  onClick={() => d && handleCellClick(d, concerts)}
                   className={[
                     'vp-cal-cell',
                     !d ? 'empty' : '',
                     isToday ? 'today' : '',
                     has ? 'has-concerts' : '',
-                    isHovered && has ? 'hovered' : '',
                   ].filter(Boolean).join(' ')}
                 >
                   {d && (
@@ -209,8 +217,9 @@ function Calendar() {
                             key={c.concertNo ?? j}
                             className="vp-cal-chip"
                             style={{
-                              background: tintFor(c),
-                              borderLeft: `3px solid ${accentFor(c)}`,
+                              '--chip-bg': tintFor(c),
+                              '--chip-hover-bg': hoverTintFor(c),
+                              '--chip-accent': accentFor(c),
                             }}
                             onClick={(e) => { e.stopPropagation(); openDetail(c, d); }}
                             role="button"
@@ -218,7 +227,9 @@ function Calendar() {
                             aria-label={`${c.artistNmKor} 공연 상세보기`}
                             onKeyPress={(e) => { if (e.key === 'Enter') { e.stopPropagation(); openDetail(c, d); } }}
                           >
-                            <div className="vp-chip-artist">{c.artistNmKor || c.artistNmEng}</div>
+                            <div className="vp-chip-artist">
+                              {c.artistNmKor || c.artistNmEng}
+                            </div>
                           </div>
                         ))}
                         {concerts.length > 2 && (

@@ -153,7 +153,8 @@
 .vp-cal-cell {
   border-right: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  padding: 6px 8px 4px;
+  padding-top: 6px;
+  padding-bottom: 4px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -179,15 +180,13 @@
   cursor: pointer;
 }
 
-.vp-cal-cell.hovered {
-  background: rgba(26, 26, 26, 0.03);
-}
-
 /* ===== 셀 헤더 (날짜 + TODAY 뱃지) ===== */
 .vp-cal-cell-top {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .vp-cal-date-num {
@@ -219,13 +218,29 @@
 .vp-cal-chips {
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 3px;
 }
 
 .vp-cal-chip {
-  padding: 4px 6px;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
   cursor: pointer;
   min-width: 0;
+  transition: background 0.12s ease;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.vp-cal-chip:hover,
+.vp-cal-chip:focus-visible {
+  background: transparent;
+}
+
+.vp-cal-chip:hover .vp-chip-artist,
+.vp-cal-chip:focus-visible .vp-chip-artist {
+  background: var(--chip-hover-bg);
 }
 
 .vp-chip-artist {
@@ -233,24 +248,34 @@
   font-size: 13.5px;
   font-weight: 600;
   color: var(--ink);
+  background: var(--chip-bg);
+  border-left: 3px solid var(--chip-accent);
+  padding: 4px 6px;
+  transition: background 0.12s ease;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.2;
+  box-sizing: border-box;
 }
 
 .vp-cal-more {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
   font-family: var(--mono);
   font-size: 13.5px;
   font-weight: 600;
   color: var(--ink-dim);
   letter-spacing: 0.06em;
-  padding-left: 6px;
+  padding: 3px 6px;
   margin-top: 1px;
   cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
 }
 
 .vp-cal-more:hover {
+  background: rgba(26, 26, 26, 0.04);
   color: var(--ink);
 }
 

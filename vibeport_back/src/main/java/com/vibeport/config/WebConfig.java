@@ -6,6 +6,8 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.concurrent.TimeUnit;
+
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
@@ -25,7 +27,8 @@ public class WebConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String dirPath = ensureTrailingSlash(imageDir);
         registry.addResourceHandler("/concert_images/**", "/vibeport/concert_images/**")
-                .addResourceLocations("file:" + dirPath);
+                .addResourceLocations("file:" + dirPath)
+                .setCachePeriod((int) TimeUnit.DAYS.toSeconds(30));
     }
 
     private String ensureTrailingSlash(String value) {

@@ -180,6 +180,7 @@ public class ConcertPipelineService {
 
             // '미정' 항목 보강
             newList = enrichMissingConcertFields(newList);
+            newList = enrichArtistImages(newList);
             saveConcerts(newList);
             return false;
         } finally {
@@ -382,6 +383,42 @@ public class ConcertPipelineService {
         result.put("updatedConcertNos", updatedConcertNos);
         result.put("skippedConcertNos", skippedConcertNos);
         return result;
+    }
+
+    private List<ConcertInfoVo> enrichArtistImages(List<ConcertInfoVo> concerts) {
+        if (concerts == null || concerts.isEmpty()) {
+            return concerts == null ? new ArrayList<>() : concerts;
+        }
+
+        ExecutorService executor = Executors.newFixedThreadPool(parallelPoolSize(concerts.size()));
+        try {
+            List<CompletableFuture<ConcertInfoVo>> futures = concerts.stream()
+                    .map(concert -> CompletableFuture.supplyAsync(() -> enrichArtistImage(concert), executor))
+                    .toList();
+
+            futures.forEach(CompletableFuture::join);
+            return concerts;
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    private ConcertInfoVo enrichArtistImage(ConcertInfoVo concert) {
+        if (concert == null || concert.getArtistImageUrl() != null && !concert.getArtistImageUrl().isBlank()) {
+            return concert;
+        }
+
+        try {
+            String artistImageUrl = geminiClient.getArtistPictureUrl(concert.getArtistNmFor());
+            concert.setArtistImageUrl(artistImageUrl);
+            if (artistImageUrl == null || artistImageUrl.isBlank()) {
+                log.warn("[ConcertPipelineService] Artist image not found - artist={}", concert.getArtistNmFor());
+            }
+        } catch (Exception e) {
+            log.warn("[ConcertPipelineService] Artist image fetch failed - artist={}: {}",
+                    concert.getArtistNmFor(), e.getMessage(), e);
+        }
+        return concert;
     }
 
     private ConcertInfoVo enrichMissingConcertFieldsWithOpenAi(ConcertInfoVo concert) {

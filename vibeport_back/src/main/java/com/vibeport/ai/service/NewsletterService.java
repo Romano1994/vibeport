@@ -1,6 +1,5 @@
 package com.vibeport.ai.service;
 
-import com.vibeport.ai.client.GeminiClient;
 import com.vibeport.ai.client.OpenAiClient;
 import com.vibeport.ai.vo.ArtistMsgVo;
 import com.vibeport.ai.vo.ConcertInfoVo;
@@ -19,7 +18,6 @@ import java.util.Map;
 public class NewsletterService {
 
     private final OpenAiClient openAiClient;
-    private final GeminiClient geminiClient;
 
     /**
      * ConcertInfoVo를 기반으로 GPT-4o 뉴스레터를 생성합니다.
@@ -28,21 +26,16 @@ public class NewsletterService {
      * @return 생성된 뉴스레터 ArtistMsgVo (이미지 포함)
      */
     public ArtistMsgVo generate(ConcertInfoVo concert) throws Exception {
-        log.info("뉴스레터 생성 시작 - 아티스트: {}({}), 공연일: {}-{}-{}",
+        log.info("Newsletter generation started - artist: {}({}), concertDate: {}-{}-{}",
                 concert.getArtistNmKor(), concert.getArtistNmFor(),
                 concert.getConcertYear(), concert.getConcertMonth(), concert.getConcertDate());
 
-        // 1. 시스템 프롬프트 로드
         String systemPrompt = loadPrompt("prompts/openai-newsletter-system.txt");
-
-        // 2. 사용자 프롬프트 구성
         String userPrompt = buildUserPrompt(concert);
-        log.debug("뉴스레터 user prompt:\n{}", userPrompt);
+        log.debug("Newsletter user prompt:\n{}", userPrompt);
 
-        // 3. OpenAI로 뉴스레터 생성
         Map<String, String> result = openAiClient.generateNewsletter(systemPrompt, userPrompt);
 
-        // 4. ArtistMsgVo 구성
         ArtistMsgVo artistMsgVo = new ArtistMsgVo();
         artistMsgVo.setArtistNmKor(concert.getArtistNmKor());
         artistMsgVo.setArtistNmFor(concert.getArtistNmFor());
@@ -51,17 +44,11 @@ public class NewsletterService {
         artistMsgVo.setConcertDate(concert.getConcertDate());
         artistMsgVo.setSubject(result.get("subject"));
         artistMsgVo.setContent(result.get("content"));
+        artistMsgVo.setArtistImageUrl(concert.getArtistImageUrl());
         artistMsgVo.setSendYn("N");
 
-        // 5. 아티스트 이미지 검색 및 저장
-        try {
-            geminiClient.getArtistPicture(artistMsgVo);
-            log.info("아티스트 이미지 설정 완료 - url: {}", artistMsgVo.getArtistImageUrl());
-        } catch (Exception e) {
-            log.warn("아티스트 이미지 취득 실패 (무시하고 계속 진행) - 아티스트: {}", concert.getArtistNmFor(), e);
-        }
-
-        log.info("뉴스레터 생성 완료 - subject: {}", artistMsgVo.getSubject());
+        log.info("Newsletter generation completed - subject: {}, imageUrl: {}",
+                artistMsgVo.getSubject(), artistMsgVo.getArtistImageUrl());
         return artistMsgVo;
     }
 

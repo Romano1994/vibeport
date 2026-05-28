@@ -74,16 +74,7 @@ public class GeminiService {
 
         // 공연의 아티스트 설명
         ArtistMsgVo artistMsgVo = this.geminiClient.getArtistInfo(firstConcert);
-
-        //가수 사진 검색 (실패해도 메일 발송은 계속 진행)
-        try {
-            this.geminiClient.getArtistPicture(artistMsgVo);
-            log.info("아티스트 이미지 설정 완료 - artist={}, url={}",
-                    artistMsgVo.getArtistNmFor(), artistMsgVo.getArtistImageUrl());
-        } catch (Exception e) {
-            log.warn("아티스트 이미지 취득 실패 (무시하고 계속) - artist={}",
-                    artistMsgVo.getArtistNmFor(), e);
-        }
+        artistMsgVo.setArtistImageUrl(firstConcert.getArtistImageUrl());
 
         // 아티스트 설명 DB저장 (artistImageUrl 컬럼 포함 - 미리보기에서 사용)
         this.aiMapper.insertArtistMsg(artistMsgVo);
@@ -165,7 +156,16 @@ public class GeminiService {
         concertVoList.stream()
                 .filter(data -> data.getArtistNmKor() != null && !data.getArtistNmKor().isEmpty())
                 .filter(data -> data.getArtistNmFor() != null && !data.getArtistNmFor().isEmpty())
+                .peek(this::enrichArtistImage)
                 .forEach(this.aiMapper::mergeConcertInfo);
+    }
+
+    private void enrichArtistImage(ConcertInfoVo concert) {
+        try {
+            concert.setArtistImageUrl(this.geminiClient.getArtistPictureUrl(concert.getArtistNmFor()));
+        } catch (Exception e) {
+            log.warn("Artist image fetch failed - artist={}", concert.getArtistNmFor(), e);
+        }
     }
 
     @Transactional

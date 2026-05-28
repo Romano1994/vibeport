@@ -16,7 +16,7 @@
              , A.TCT_OPEN_AT
              , A.POP_SCORE
              , A.ARTIST_NM_FOR
-             , B.ARTIST_IMAGE_URL AS artistImageUrl
+             , COALESCE(A.ARTIST_IMAGE_URL, B.ARTIST_IMAGE_URL) AS artistImageUrl
              , A.SEND_YN
           FROM TB_CONCERT_INFO AS A
           LEFT OUTER JOIN (
@@ -62,7 +62,7 @@
              , A.TCT_OPEN_AT
              , B.SUBJECT
              , B.CONTENT
-             , B.ARTIST_IMAGE_URL AS artistImageUrl
+             , COALESCE(B.ARTIST_IMAGE_URL, A.ARTIST_IMAGE_URL) AS artistImageUrl
              , A.POP_SCORE
              , A.SEND_YN
           FROM TB_CONCERT_INFO AS A

@@ -14,6 +14,7 @@
             , TCT_OPEN_AT
             , GENRE
             , POP_SCORE
+            , ARTIST_IMAGE_URL
             , SEND_YN
             , REG_TIME
         ) VALUES (
@@ -28,6 +29,7 @@
             , #{tctOpenAt}
             , #{genre}
             , #{popScore}
+            , #{artistImageUrl}
             , 'N'
             , NOW()
         )
@@ -42,6 +44,7 @@
             , TCT_SITE = VALUES(TCT_SITE)
             , TCT_OPEN_AT = VALUES(TCT_OPEN_AT)
             , GENRE = VALUES(GENRE)
+            , ARTIST_IMAGE_URL = COALESCE(VALUES(ARTIST_IMAGE_URL), ARTIST_IMAGE_URL)
     </insert>
 
     <insert id="insertMailLog">
@@ -93,6 +96,7 @@
              , A.REG_TIME        AS regTime
              , B.SEND_YN         AS sendYn
              , A.GENRE           AS genre
+             , A.ARTIST_IMAGE_URL AS artistImageUrl
           FROM TB_CONCERT_INFO AS A
           LEFT OUTER JOIN TB_ARTIST_MSG AS B
             ON A.ARTIST_NM_KOR = B.ARTIST_NM_KOR
@@ -120,6 +124,7 @@
              , A.REG_TIME        AS regTime
              , A.SEND_YN         AS sendYn
              , A.GENRE           AS genre
+             , A.ARTIST_IMAGE_URL AS artistImageUrl
           FROM TB_CONCERT_INFO AS A
          WHERE A.CONCERT_NO = #{concertNo}
     </select>
@@ -139,6 +144,7 @@
              , A.REG_TIME        AS regTime
              , A.SEND_YN         AS sendYn
              , A.GENRE           AS genre
+             , A.ARTIST_IMAGE_URL AS artistImageUrl
           FROM TB_CONCERT_INFO AS A
          WHERE STR_TO_DATE(CONCAT(A.CONCERT_YEAR, '-', LPAD(A.CONCERT_MONTH, 2, '0'), '-', LPAD(A.CONCERT_DATE, 2, '0')), '%Y-%m-%d') >= CURDATE()
            AND (
@@ -193,7 +199,21 @@
     </update>
 
     <select id="selectRandomSendedInfo" resultType="com.vibeport.ai.vo.ConcertInfoVo">
-        SELECT A.*
+        SELECT A.CONCERT_NO      AS concertNo
+             , A.ARTIST_NM_KOR   AS artistNmKor
+             , A.ARTIST_NM_FOR   AS artistNmFor
+             , A.CONCERT_YEAR    AS concertYear
+             , A.CONCERT_MONTH   AS concertMonth
+             , A.CONCERT_DATE    AS concertDate
+             , A.CONCERT_TIME    AS concertTime
+             , A.VENUE           AS venue
+             , A.TCT_SITE        AS tctSite
+             , A.TCT_OPEN_AT     AS tctOpenAt
+             , A.POP_SCORE       AS popScore
+             , A.REG_TIME        AS regTime
+             , A.SEND_YN         AS sendYn
+             , A.GENRE           AS genre
+             , A.ARTIST_IMAGE_URL AS artistImageUrl
           FROM TB_CONCERT_INFO AS A
          WHERE SEND_YN = 'Y'
          ORDER BY RAND()
@@ -201,8 +221,22 @@
     </select>
 
     <select id="selectTopPopUnsentConcert" resultType="com.vibeport.ai.vo.ConcertInfoVo">
-        SELECT *
-          FROM TB_CONCERT_INFO
+        SELECT A.CONCERT_NO      AS concertNo
+             , A.ARTIST_NM_KOR   AS artistNmKor
+             , A.ARTIST_NM_FOR   AS artistNmFor
+             , A.CONCERT_YEAR    AS concertYear
+             , A.CONCERT_MONTH   AS concertMonth
+             , A.CONCERT_DATE    AS concertDate
+             , A.CONCERT_TIME    AS concertTime
+             , A.VENUE           AS venue
+             , A.TCT_SITE        AS tctSite
+             , A.TCT_OPEN_AT     AS tctOpenAt
+             , A.POP_SCORE       AS popScore
+             , A.REG_TIME        AS regTime
+             , A.SEND_YN         AS sendYn
+             , A.GENRE           AS genre
+             , A.ARTIST_IMAGE_URL AS artistImageUrl
+          FROM TB_CONCERT_INFO AS A
          WHERE (SEND_YN = 'N' OR SEND_YN IS NULL)
            AND CONCAT(CONCERT_YEAR, '-', LPAD(CONCERT_MONTH, 2, '0'), '-', LPAD(CONCERT_DATE, 2, '0')) >= CURDATE()
          ORDER BY POP_SCORE DESC

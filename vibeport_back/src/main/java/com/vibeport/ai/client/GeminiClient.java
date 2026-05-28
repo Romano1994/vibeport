@@ -38,6 +38,7 @@ import java.util.Set;
 @Component
 public class GeminiClient {
 
+    private static final String DEFAULT_GEMINI_MODEL = "gemini-3.1-flash-lite";
     private static final String GEMINI_MISSING_FIELD_MODEL = "gemini-2.5-pro";
     private static final int MISSING_FIELD_TIMEOUT_MS = 180_000;
     private static final int MISSING_FIELD_MAX_OUTPUT_TOKENS = 4096;
@@ -48,6 +49,7 @@ public class GeminiClient {
 
     private final Client client;
     private final Tool googleSearchTool;
+    private final String model;
     private final ObjectMapper objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -60,10 +62,13 @@ public class GeminiClient {
     @Value("${app.image-dir:./data/concert_images/}")
     private String imageDir;
 
-    public GeminiClient(@Value("${spring.ai.gemini.api-key}") String geminiApiKey) {
+    public GeminiClient(
+            @Value("${spring.ai.gemini.api-key}") String geminiApiKey,
+            @Value("${spring.ai.gemini.model:" + DEFAULT_GEMINI_MODEL + "}") String model) {
         this.client = Client.builder()
                 .apiKey(geminiApiKey)
                 .build();
+        this.model = model;
 
         this.googleSearchTool = Tool.builder()
                 .googleSearch(GoogleSearch.builder().build())
@@ -90,7 +95,7 @@ public class GeminiClient {
 
         log.info(year + "=============" + month);
         GenerateContentResponse response = client.models.generateContent(
-                "gemini-3-pro-preview",
+                model,
                 Content.builder().parts(List.of(Part.builder().text(userPrompt).build())).build(),
                 config
         );
@@ -124,7 +129,7 @@ public class GeminiClient {
 
         log.info("daily concert search date: {}", dateStr);
         GenerateContentResponse response = client.models.generateContent(
-                "gemini-3-pro-preview",
+                model,
                 Content.builder().parts(List.of(Part.builder().text(userPrompt).build())).build(),
                 config
         );
@@ -338,7 +343,7 @@ public class GeminiClient {
                 .build();
 
         GenerateContentResponse response = client.models.generateContent(
-                "gemini-3-pro-preview",
+                model,
                 Content.builder().parts(List.of(Part.builder().text(userSb.toString()).build())).build(),
                 config
         );
@@ -385,11 +390,8 @@ public class GeminiClient {
         return artistMsgVo;
     }
 
-    public void getArtistPicture(ArtistMsgVo artistMsgVo) throws Exception {
-        String artistNmFor = artistMsgVo.getArtistNmFor();
-
+    public String getArtistPictureUrl(String artistNmFor) throws Exception {
         List<String> imgUrls = getImageUrls(artistNmFor, 5);
-        boolean saved = false;
         if (imgUrls != null) {
             for (String imgUrl : imgUrls) {
                 if (imgUrl == null || !imgUrl.startsWith("http")) {
@@ -398,21 +400,24 @@ public class GeminiClient {
                 try {
                     String fileName = "artist_" + java.util.UUID.randomUUID();
                     String savedFileName = saveImageFromServer(imgUrl, fileName);
-                    artistMsgVo.setArtistImagePath(Paths.get(ensureTrailingSlash(imageDir)).resolve(savedFileName).toAbsolutePath().normalize().toString());
-                    artistMsgVo.setArtistImageUrl(buildPublicImageUrl("/concert_images/" + savedFileName));
-                    System.out.println("저장 완료: " + ensureTrailingSlash(imageDir) + savedFileName);
-                    saved = true;
-                    break;
+                    log.info("Artist image saved: {}{}", ensureTrailingSlash(imageDir), savedFileName);
+                    return buildPublicImageUrl("/concert_images/" + savedFileName);
                 } catch (IOException e) {
-                    // 도메인 블랙 리스트 저장
-
                     log.warn("Image download failed, try next. url={}", imgUrl);
                 }
             }
         }
 
-        if (!saved) {
-            System.out.println("이미지 URL을 찾지 못했습니다.");
+        log.info("Artist image URL not found - artist={}", artistNmFor);
+        return null;
+    }
+
+    public void getArtistPicture(ArtistMsgVo artistMsgVo) throws Exception {
+        String artistImageUrl = getArtistPictureUrl(artistMsgVo.getArtistNmFor());
+        if (artistImageUrl != null && !artistImageUrl.isBlank()) {
+            artistMsgVo.setArtistImageUrl(artistImageUrl);
+            String savedFileName = artistImageUrl.substring(artistImageUrl.lastIndexOf('/') + 1);
+            artistMsgVo.setArtistImagePath(Paths.get(ensureTrailingSlash(imageDir)).resolve(savedFileName).toAbsolutePath().normalize().toString());
         }
     }
 

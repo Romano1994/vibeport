@@ -99,6 +99,8 @@ public class ConcertPipelineService {
                     concert.getArtistNmKor(), concert.getArtistNmFor());
         }
 
+        ensureArtistImage(concert, false);
+
         ArtistMsgVo artistMsgVo = newsletterService.generate(concert);
 
         artistMsgMailService.artistMsgEmailSend(List.of(req.getEmail()), artistMsgVo);
@@ -212,6 +214,8 @@ public class ConcertPipelineService {
         }
         log.info("[ConcertPipelineService] Step3 - 대상 공연: {}({}), popScore={}",
                 concert.getArtistNmKor(), concert.getArtistNmFor(), concert.getPopScore());
+
+        ensureArtistImage(concert, true);
 
         ArtistMsgVo artistMsgVo;
         try {
@@ -419,6 +423,33 @@ public class ConcertPipelineService {
                     concert.getArtistNmFor(), e.getMessage(), e);
         }
         return concert;
+    }
+
+    private void ensureArtistImage(ConcertInfoVo concert, boolean persistConcert) {
+        if (concert == null || concert.getArtistImageUrl() != null && !concert.getArtistImageUrl().isBlank()) {
+            return;
+        }
+        if (concert.getArtistNmFor() == null || concert.getArtistNmFor().isBlank()) {
+            log.warn("[ConcertPipelineService] Artist image fetch skipped - artistNmFor is blank, artistNmKor={}",
+                    concert.getArtistNmKor());
+            return;
+        }
+
+        try {
+            String artistImageUrl = geminiClient.getArtistPictureUrl(concert.getArtistNmFor());
+            if (artistImageUrl == null || artistImageUrl.isBlank()) {
+                log.warn("[ConcertPipelineService] Artist image not found - artist={}", concert.getArtistNmFor());
+                return;
+            }
+
+            concert.setArtistImageUrl(artistImageUrl);
+            if (persistConcert) {
+                aiMapper.mergeConcertInfo(concert);
+            }
+        } catch (Exception e) {
+            log.warn("[ConcertPipelineService] Artist image fetch failed - artist={}: {}",
+                    concert.getArtistNmFor(), e.getMessage(), e);
+        }
     }
 
     private ConcertInfoVo enrichMissingConcertFieldsWithOpenAi(ConcertInfoVo concert) {

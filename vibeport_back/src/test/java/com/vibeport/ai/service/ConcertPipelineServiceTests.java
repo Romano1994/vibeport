@@ -177,7 +177,7 @@ class ConcertPipelineServiceTests {
     }
 
     @Test
-    void collectDailyConcertsSendsNewsletterForTopPopUnsentConcertWhenNoConcertsAreCollected() {
+    void collectDailyConcertsSendsNewsletterForTopPopUnsentConcertWhenNoConcertsAreCollected() throws Exception {
         GeminiClient geminiClient = mock(GeminiClient.class);
         AiMapper aiMapper = mock(AiMapper.class);
         NewsletterService newsletterService = mock(NewsletterService.class);
@@ -213,6 +213,48 @@ class ConcertPipelineServiceTests {
         verify(artistMsgMailService).artistMsgEmailSend(List.of("test@example.com"), artistMsgVo);
         verify(aiMapper).updateArtistMsgSendYn(artistMsgVo);
         verify(aiMapper).updateConcertInfoSendYn(artistMsgVo);
+    }
+
+    @Test
+    void sendDailyNewsletterFetchesMissingArtistImageBeforeSavingArtistMsg() throws Exception {
+        GeminiClient geminiClient = mock(GeminiClient.class);
+        AiMapper aiMapper = mock(AiMapper.class);
+        NewsletterService newsletterService = mock(NewsletterService.class);
+        ArtistMsgMailService artistMsgMailService = mock(ArtistMsgMailService.class);
+        ConcertPipelineService service = service(
+                geminiClient,
+                null,
+                aiMapper,
+                newsletterService,
+                artistMsgMailService
+        );
+
+        ConcertInfoVo topConcert = missingConcert(20);
+        topConcert.setArtistNmFor("Coldplay");
+        topConcert.setArtistImageUrl(null);
+        when(aiMapper.selectTopPopUnsentConcert()).thenReturn(topConcert);
+        when(geminiClient.getArtistPictureUrl("Coldplay")).thenReturn("https://example.com/coldplay.jpg");
+        when(newsletterService.generate(topConcert)).thenAnswer(invocation -> {
+            ConcertInfoVo concert = invocation.getArgument(0);
+            ArtistMsgVo artistMsgVo = new ArtistMsgVo();
+            artistMsgVo.setArtistNmKor(concert.getArtistNmKor());
+            artistMsgVo.setArtistNmFor(concert.getArtistNmFor());
+            artistMsgVo.setConcertYear(concert.getConcertYear());
+            artistMsgVo.setConcertMonth(concert.getConcertMonth());
+            artistMsgVo.setConcertDate(concert.getConcertDate());
+            artistMsgVo.setSubject("Top pop concert");
+            artistMsgVo.setContent("Newsletter content");
+            artistMsgVo.setArtistImageUrl(concert.getArtistImageUrl());
+            return artistMsgVo;
+        });
+        when(aiMapper.selectEmailList()).thenReturn(List.of());
+
+        service.sendDailyNewsletter();
+
+        assertEquals("https://example.com/coldplay.jpg", topConcert.getArtistImageUrl());
+        verify(geminiClient).getArtistPictureUrl("Coldplay");
+        verify(aiMapper).mergeConcertInfo(topConcert);
+        verify(aiMapper).insertArtistMsg(any(ArtistMsgVo.class));
     }
 
     private ConcertPipelineService service(GeminiClient geminiClient, OpenAiClient openAiClient, AiMapper aiMapper) {

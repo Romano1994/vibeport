@@ -20,7 +20,7 @@ jobs:
           script: |
             cd /home/ec2-user/apps/vibeport/vibeport_back
             git config --global --add safe.directory /home/ec2-user/apps/vibeport/vibeport_back
-            sudo docker image tag vibeport-front:latest vibeport_front:rollback || true
+            sudo docker image tag vibeport-frontend:latest vibeport_front:rollback || true
             sudo docker image tag vibeport-backend:latest n-splitter-backend:rollback || true
             git pull origin master
             sudo docker compose build --no-cache

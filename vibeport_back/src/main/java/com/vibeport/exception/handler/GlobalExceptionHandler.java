@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 //import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
@@ -35,10 +36,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     protected ResponseEntity<ErrorResponse> handleBusinessException(final BusinessException e) {
         log.error("handleBusinessException: {}", e.getMessage());
-        final ErrorCode errorCode = ErrorCode.BAD_REQUEST;
-        final ErrorResponse response = new ErrorResponse(errorCode);
-        return ResponseEntity.status(ErrorCode.INTERNAL_SERVER_ERROR.getStatus().value())
-                .body(new ErrorResponse(e.getStatus(), e.getError(), "-1", e.getMessage()));
+        return jsonError(new ErrorResponse(e.getStatus(), e.getError(), "-1", e.getMessage()), ErrorCode.INTERNAL_SERVER_ERROR.getStatus());
     }
 
     /**
@@ -66,7 +64,7 @@ public class GlobalExceptionHandler {
 		this.excuteErrorLog(request, ex);
 
         final ErrorResponse response = new ErrorResponse(ErrorCode.INVALID_BINDING_ERROR);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return jsonError(response, HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -80,7 +78,7 @@ public class GlobalExceptionHandler {
 		this.excuteErrorLog(request, ex);
 
         final ErrorResponse response = new ErrorResponse(ErrorCode.INVALID_BINDING_ERROR);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return jsonError(response, HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -93,7 +91,7 @@ public class GlobalExceptionHandler {
 		this.excuteErrorLog(request, ex);
 
         final ErrorResponse response = new ErrorResponse(ErrorCode.BAD_REQUEST);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return jsonError(response, HttpStatus.BAD_REQUEST);
     }
 
 
@@ -105,7 +103,7 @@ public class GlobalExceptionHandler {
         log.warn("Static resource not found: {} {}", request.getMethod(), request.getRequestURI());
 
         final ErrorResponse response = new ErrorResponse(ErrorCode.POSTS_NOT_FOUND);
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        return jsonError(response, HttpStatus.NOT_FOUND);
     }
 
     /**
@@ -119,8 +117,14 @@ public class GlobalExceptionHandler {
 		this.excuteErrorLog(request, ex);
 
         final ErrorResponse response = new ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR);
-		return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		return jsonError(response, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+
+    private ResponseEntity<ErrorResponse> jsonError(ErrorResponse response, HttpStatus status) {
+        return ResponseEntity.status(status)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
+    }
 
     /**
      * 에러 로그를 생성하고 데이터베이스에 삽입합니다.
@@ -154,6 +158,7 @@ public class GlobalExceptionHandler {
 
 //        this.errorLogService.insertErrorLog(errorLog);
         response.setStatus(ex.getErrorCode().getStatus().value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         return CommonResponse.error(ex.getErrorCode().getStatus(), ex.getMessage(), LocalDateTime.now());
     }

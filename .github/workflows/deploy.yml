@@ -18,11 +18,11 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/ec2-user/apps/vibeport/
-            git config --global --add safe.directory /home/ec2-user/apps/vibeport/
-            sudo docker image tag vibeport-frontend:latest vibeport_frontend:rollback || true
-            sudo docker image tag vibeport-backend:latest vibeport-backend:rollback || true
+            cd /home/***/apps/vibeport/
+            set -e
             git pull origin main
+            sudo docker image tag vibeport-frontend:latest vibeport-frontend:rollback || true
+            sudo docker image tag vibeport-backend:latest vibeport-backend:rollback || true
             sudo docker-compose build --no-cache
             sudo docker-compose up -d
             sudo docker image prune -f

@@ -22,6 +22,10 @@ public interface AiMapper {
 
     List<ConcertInfoVo> selectFutureMissingConcertInfos();
 
+    List<ConcertInfoVo> selectConcertsMissingImage(Map<String, Object> paramMap);
+
+    int updateConcertArtistImage(@Param("concertNo") int concertNo, @Param("artistImageUrl") String artistImageUrl);
+
     int updateMissingConcertFields(ConcertInfoVo concertInfoVo);
 
     List<String> selectEmailList();

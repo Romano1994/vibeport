@@ -26,4 +26,13 @@ public class ConcertController {
     public ConcertInfoVo getTodayFeature() throws Exception{
         return this.concertService.getTodayFeatureConcert();
     }
+
+    /**
+     * 이미지 없는 미래 공연을 limit 건씩 보강한다. (수동 트리거)
+     * body: { "limit": 10, "frYmd": "2026-06-01", "toYmd": "2026-09-30" } - 모두 선택값
+     */
+    @PostMapping("enrichArtistImages")
+    public Map<String, Object> enrichArtistImages(@RequestBody(required = false) Map<String, Object> param) throws Exception {
+        return this.concertService.enrichArtistImages(param);
+    }
 }

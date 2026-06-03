@@ -28,8 +28,10 @@ public class TestEmailService {
     private String sendTimeText;
     private final SesClient sesClient;
     private final TemplateEngine templateEngine;
+    private final ArtistImagePathResolver artistImagePathResolver;
 
     public void emailVerifSend(List<String> toList, ArtistMsgVo letterVo) {
+        String inlineImagePath = artistImagePathResolver.resolveInlineImagePath(letterVo);
         Context context = new Context();
         String concertDateText = "";
         if (letterVo.getConcertYear() > 0 && letterVo.getConcertMonth() > 0 && letterVo.getConcertDate() > 0) {
@@ -55,7 +57,7 @@ public class TestEmailService {
         context.setVariable("sendTimeText", sendTimeText);
         context.setVariable("volNumber", volNumber);
         context.setVariable("artistInfo", letterVo.getContent());
-        context.setVariable("artistImageCid", letterVo.getArtistImagePath() == null ? null : ARTIST_IMAGE_CID);
+        context.setVariable("artistImageCid", inlineImagePath == null ? null : ARTIST_IMAGE_CID);
 
         String content = templateEngine.process("vibeportNewsletter", context);
 
@@ -64,7 +66,7 @@ public class TestEmailService {
                 .to(toList)
                 .subject(letterVo.getSubject())
                 .content(content)
-                .inlineImagePath(letterVo.getArtistImagePath())
+                .inlineImagePath(inlineImagePath)
                 .inlineImageContentId(ARTIST_IMAGE_CID)
                 .build();
 

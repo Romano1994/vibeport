@@ -9,6 +9,7 @@ import com.vibeport.ai.vo.NewsletterTestRequestVo;
 import com.vibeport.mail.service.ArtistMsgMailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -33,6 +34,9 @@ public class ConcertPipelineService {
     private final NewsletterService newsletterService;
     private final ArtistMsgMailService artistMsgMailService;
     private final TransactionTemplate transactionTemplate;
+
+    @Value("${newsletter.mail.enabled:false}")
+    private boolean newsletterMailEnabled;
 
     // -------------------------------------------------------------------------
     // 진입점
@@ -234,17 +238,20 @@ public class ConcertPipelineService {
                     artistMsgVo.getArtistNmFor());
         }
 
-        // 수신자 목록 조회
-        List<String> recipients = aiMapper.selectEmailList();
-//        List<String> recipients = List.of("sala9423@naver.com");
-        log.info("[ConcertPipelineService] Step3 - 수신자 {}명에게 발송", recipients.size());
+        if (newsletterMailEnabled) {
+            // 수신자 목록 조회
+            List<String> recipients = aiMapper.selectEmailList();
+            log.info("[ConcertPipelineService] Step3 - 수신자 {}명에게 발송", recipients.size());
 
-        if (!recipients.isEmpty()) {
-            artistMsgMailService.artistMsgEmailSend(recipients, artistMsgVo);
-            log.info("[ConcertPipelineService] Step3 - 이메일 발송 완료");
+            if (!recipients.isEmpty()) {
+                artistMsgMailService.artistMsgEmailSend(recipients, artistMsgVo);
+                log.info("[ConcertPipelineService] Step3 - 이메일 발송 완료");
+            }
+        } else {
+            log.info("[ConcertPipelineService] Step3 - 메일 발송 비활성화(newsletter.mail.enabled=false). 뉴스레터 작성/저장만 수행");
         }
 
-        // 발송 여부 업데이트
+        // 발행 상태 업데이트 (사이트 노출 및 다음 날 다른 공연 선정에 사용)
         aiMapper.updateArtistMsgSendYn(artistMsgVo);
         aiMapper.updateConcertInfoSendYn(artistMsgVo);
         log.info("[ConcertPipelineService] Step3 - 발송 상태 업데이트 완료");

@@ -3,6 +3,7 @@ package com.vibeport.ai.service;
 import com.vibeport.ai.client.GeminiClient;
 import com.vibeport.ai.client.OpenAiClient;
 import com.vibeport.ai.mapper.AiMapper;
+import com.vibeport.ai.util.ConcertFieldNormalizer;
 import com.vibeport.ai.vo.ArtistMsgVo;
 import com.vibeport.ai.vo.ConcertInfoVo;
 import com.vibeport.ai.vo.NewsletterTestRequestVo;
@@ -575,6 +576,7 @@ public class ConcertPipelineService {
         if (missingFields.contains("tctOpenAt") && !isMissingText(enriched.getTctOpenAt())) {
             target.setTctOpenAt(enriched.getTctOpenAt().trim());
         }
+        ConcertFieldNormalizer.normalize(target);
     }
 
     private boolean isMissingConcertTime(String value) {
@@ -603,6 +605,7 @@ public class ConcertPipelineService {
     private void doSaveConcerts(List<ConcertInfoVo> concertList) {
         concertList.forEach(concert -> {
             try {
+                ConcertFieldNormalizer.normalize(concert);
                 aiMapper.mergeConcertInfo(concert);
             } catch (Exception e) {
                 log.error("[ConcertPipelineService] 공연 저장 실패 - artistNmKor={}, date={}-{}-{}: {}",

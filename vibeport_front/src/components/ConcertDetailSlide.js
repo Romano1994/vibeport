@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import client from '../api/client';
+import { formatConcertTime } from '../utils/TimeUtils';
 import '../styles/slide.css';
 
 
@@ -26,13 +27,6 @@ function ConcertDetailSlide({ concert, isOpen, onClose }) {
     return () => window.removeEventListener('keydown', onEsc);
   }, [isOpen, onClose]);
 
-  const formatTime = (t) => {
-    if (!t) return '';
-    const s = String(t);
-    if (s.includes(':')) return s.slice(0, 5);
-    const d = s.replace(/\D/g, '');
-    return d.length >= 4 ? `${d.slice(0,2)}:${d.slice(2,4)}` : s;
-  };
 
   const formatDateTime = (c) => {
     if (!c) return '-';
@@ -40,7 +34,7 @@ function ConcertDetailSlide({ concert, isOpen, onClose }) {
     if (!concertYear || !concertMonth || !concertDate) return '-';
     const mm   = String(concertMonth).padStart(2, '0');
     const dd   = String(concertDate).padStart(2, '0');
-    const time = formatTime(concertTime);
+    const time = formatConcertTime(concertTime);
     return time ? `${concertYear}.${mm}.${dd} ${time}` : `${concertYear}.${mm}.${dd}`;
   };
 

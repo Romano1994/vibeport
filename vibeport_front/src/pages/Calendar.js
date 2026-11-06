@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import client from '../api/client';
+import { formatConcertTime } from '../utils/TimeUtils';
 import ConcertDetailSlide from '../components/ConcertDetailSlide';
 import ConcertListSlide from '../components/ConcertListSlide';
 import '../styles/calendar.css';
@@ -143,12 +144,6 @@ function Calendar() {
     detail: { isOpen: false, concert: null },
   }), []);
 
-  const formatTime = (t) => {
-    if (!t) return '';
-    if (String(t).includes(':')) return String(t).slice(0, 5);
-    const d = String(t).replace(/\D/g, '');
-    return d.length >= 4 ? `${d.slice(0,2)}:${d.slice(2,4)}` : t;
-  };
 
   return (
     <div className={`vp-calendar-page${isAnimating ? ' animating' : ''}`}>
@@ -280,7 +275,7 @@ function Calendar() {
                     <div className="vp-sidebar-info">
                       <div className="vp-sidebar-artist">{c.artistNmKor || c.artistNmEng}</div>
                       <div className="vp-sidebar-meta">
-                        {formatTime(c.concertTime)}{c.venue ? ` · ${c.venue}` : ''}
+                        {formatConcertTime(c.concertTime)}{c.venue ? ` · ${c.venue}` : ''}
                       </div>
                     </div>
                   </div>

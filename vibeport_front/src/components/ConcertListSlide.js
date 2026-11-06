@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
+import { formatConcertTime } from '../utils/TimeUtils';
 import '../styles/slide.css';
 
 function ConcertListSlide({ concerts, date, isOpen, onClose, onSelectConcert }) {
@@ -15,13 +16,6 @@ function ConcertListSlide({ concerts, date, isOpen, onClose, onSelectConcert }) 
     };
   }, [isOpen, onClose]);
 
-  const formatTime = (t) => {
-    if (!t) return '';
-    const s = String(t);
-    if (s.includes(':')) return s.slice(0, 5);
-    const d = s.replace(/\D/g, '');
-    return d.length >= 4 ? `${d.slice(0,2)}:${d.slice(2,4)}` : s;
-  };
 
   if (!isOpen) return null;
 
@@ -67,7 +61,7 @@ function ConcertListSlide({ concerts, date, isOpen, onClose, onSelectConcert }) 
                       {concert.artistNmKor || concert.artistNmEng || '아티스트 정보 없음'}
                     </div>
                     <div className="vp-list-meta">
-                      {formatTime(concert.concertTime)}{concert.venue ? ` · ${concert.venue}` : ''}
+                      {formatConcertTime(concert.concertTime)}{concert.venue ? ` · ${concert.venue}` : ''}
                     </div>
                   </div>
                   <span className="vp-list-arrow">›</span>

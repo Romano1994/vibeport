@@ -29,7 +29,7 @@ Field rules:
 - concertDateTime: yyyy-MM-dd HH:mm. If the date is confirmed but time is unknown, use 00:00.
 - venue: Korean venue name. If unknown, use exactly "미정".
 - tctSite: ticket sales site name. If unknown, use exactly "미정".
-- tctOpenAt: ticket open date/time text. If unknown, use exactly "미정".
+- tctOpenAt: yyyy-MM-dd HH:mm in Korea Standard Time (no "T" separator, no seconds, no time zone). If only the date is known, use yyyy-MM-dd. If unknown, use exactly "미정".
 - genre: concise genre label.
 - popScore: integer from 0 to 100, sorted descending by popularity.
 

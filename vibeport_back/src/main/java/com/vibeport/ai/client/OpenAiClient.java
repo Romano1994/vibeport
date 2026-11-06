@@ -207,8 +207,11 @@ public class OpenAiClient {
                 Search the web and fill only requested missing fields for one concert.
                 Return a single JSON object only. Do not include markdown or commentary.
                 JSON keys: concertTime, venue, tctSite, tctOpenAt.
-                concertTime must be HHmm, for example 1900.
-                tctOpenAt should be a concise Korean or ISO-like date/time string when available.
+                concertTime must be HHmm in Korea Standard Time, for example 1900.
+                If there are multiple shows on the same day, join the times with "/", for example 1500/1900.
+                tctOpenAt must be "yyyy-MM-dd HH:mm" in Korea Standard Time, for example 2026-01-10 20:00.
+                Do not use an ISO 8601 "T" separator, seconds, or time zone suffixes in tctOpenAt.
+                If only the ticket open date is known, use "yyyy-MM-dd".
                 If a requested field cannot be verified from reliable web results, return "미정" for that field.
                 For fields not requested, return the original value from the prompt.
                 """;

@@ -3,6 +3,7 @@ package com.vibeport.mail.service;
 import com.vibeport.ai.vo.ArtistMsgVo;
 import com.vibeport.mail.vo.EmailVo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -18,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ArtistMsgMailService {
@@ -31,6 +33,8 @@ public class ArtistMsgMailService {
     private String launchDate;
     @Value("${newsletter.send-time-text}")
     private String sendTimeText;
+    @Value("${newsletter.mail.enabled:false}")
+    private boolean mailEnabled;
     private final SesClient sesClient;
     private final TemplateEngine templateEngine;
     private final ArtistImagePathResolver artistImagePathResolver;
@@ -67,6 +71,12 @@ public class ArtistMsgMailService {
         String content = templateEngine.process("vibeportNewsletter", context);
 
         if (toList == null || toList.isEmpty()) {
+            return;
+        }
+
+        if (!mailEnabled) {
+            log.info("[ArtistMsgMailService] newsletter.mail.enabled=false - 메일 발송 스킵 (수신자 {}명, subject={})",
+                    toList.size(), letterVo.getSubject());
             return;
         }
 

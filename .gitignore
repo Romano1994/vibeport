@@ -138,3 +138,5 @@ test-results/
 **/src/main/resources/concert_images/
 
 TODO.md
+# DB 백업 덤프 (운영 데이터 포함)
+db/backup/
